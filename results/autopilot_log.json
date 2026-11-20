@@ -488,7 +488,9 @@
           "trigger": "/autose variant=single-agent",
           "number": 6,
           "since": "2026-11-20T12:45:49Z",
-          "triggered_at": "2026-11-20T12:47:51Z"
+          "triggered_at": "2026-11-20T12:47:51Z",
+          "run_id": 44738785680,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44738785680"
         }
       ],
       "allowance": 2

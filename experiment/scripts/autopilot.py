@@ -49,10 +49,14 @@ class GH:
         self.repo = repo
 
     def run(self, *args: str) -> str:
-        proc = subprocess.run(['gh', *args], capture_output=True, text=True)
-        if proc.returncode != 0:
+        for attempt in range(4):
+            proc = subprocess.run(['gh', *args], capture_output=True, text=True)
+            if proc.returncode == 0:
+                return proc.stdout
+            if attempt < 3 and any(err in proc.stderr.lower() for err in ['network is unreachable', 'connection reset', 'timeout', 'handshake']):
+                time.sleep(2 ** attempt)
+                continue
             raise RuntimeError(f"gh {' '.join(args[:3])} failed: {proc.stderr.strip()[:400]}")
-        return proc.stdout
 
     def json(self, *args: str) -> Any:
         return json.loads(self.run(*args) or 'null')
