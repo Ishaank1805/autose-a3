@@ -51,12 +51,21 @@ Share of runs that reached a stage and passed its check.
 | issue_1 | single-agent | [44730437474](https://github.com/Ishaank1805/tinydb/actions/runs/44730437474) | 4/4 |  |
 | issue_2 | baseline | [44731826531](https://github.com/Ishaank1805/tinydb/actions/runs/44731826531) | 4/4 |  |
 | issue_2 | single-agent | [44732816613](https://github.com/Ishaank1805/tinydb/actions/runs/44732816613) | 4/4 |  |
-| issue_3 | baseline | [44733750726](https://github.com/Ishaank1805/tinydb/actions/runs/44733750726) | 0/4 | no PR: stopped at  |
+| issue_3 | baseline | [44733750726](https://github.com/Ishaank1805/tinydb/actions/runs/44733750726) | 0/4 | no PR: stopped at requirements |
 | issue_3 | single-agent | [44734094615](https://github.com/Ishaank1805/tinydb/actions/runs/44734094615) | 4/4 |  |
 | issue_4 | baseline | [44735135652](https://github.com/Ishaank1805/tinydb/actions/runs/44735135652) | 4/4 |  |
 | issue_4 | single-agent | [44736456570](https://github.com/Ishaank1805/tinydb/actions/runs/44736456570) | 4/4 |  |
 | issue_5 | baseline | [44737640143](https://github.com/Ishaank1805/tinydb/actions/runs/44737640143) | 4/4 |  |
 | issue_5 | single-agent | [44738785680](https://github.com/Ishaank1805/tinydb/actions/runs/44738785680) | 4/4 |  |
+
+## Runs that stopped, and why
+
+Each stopped run explains itself in its stage artifact and in a comment on the issue.
+
+| Run | Issue | Variant | Stopped at | Reason |
+|---|---|---|---|---|
+| [44733750726](https://github.com/Ishaank1805/tinydb/actions/runs/44733750726) | issue_3 | baseline | requirements | acceptance criteria still not testable after 3 submissions |
+| [44741723040](https://github.com/Ishaank1805/tinydb/actions/runs/44741723040) | redteam_1 | baseline | design | the plan still failed its check after 3 submissions |
 
 ## Reviewer verdict against the hidden tests (the workflow's own PRs)
 

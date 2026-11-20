@@ -25,7 +25,7 @@ from hidden_runner import hidden_test_file, run_hidden, summarize  # noqa: E402
 
 STAGES = ['requirements', 'design', 'implementation', 'testing', 'release']
 FIELDS = ['run_id', 'run_url', 'created_at', 'mode', 'variant', 'issue_key', 'issue', 'kind', 'pr', 'pr_url',
-          'head_sha', 'outcome', 'stopped_stage', *STAGES, 'review_rounds', 'review_verdicts', 'final_verdict',
+          'head_sha', 'outcome', 'stopped_stage', 'stop_reason', *STAGES, 'review_rounds', 'review_verdicts', 'final_verdict',
           'seeded_id', 'expected_verdict', 'reviewer_correct', 'hidden_passed', 'hidden_total', 'checks_failed',
           'loops', 'tokens_input', 'tokens_output', 'tokens_cache_read', 'tokens_cache_write', 'tokens_total',
           'est_cost_usd', 'review_urls', 'ci_urls']
@@ -64,6 +64,26 @@ def hidden_count(issue_key: str) -> int:
         return 0
 
 
+def stop_details(repo: str, run_id: int, base: Path) -> tuple[str, str]:
+    """Stage and reason of a stopped run, from the state the build/rework job saved (newest round first)."""
+    for rnd in (2, 1, 0):
+        folder = download(repo, run_id, f'autose-state-r{rnd}', base / f'state-r{rnd}')
+        if folder and (folder / 'state.json').exists():
+            state = json.loads((folder / 'state.json').read_text())
+            if state.get('status') == 'stopped' or state.get('stopped_stage'):
+                return state.get('stopped_stage', ''), str(state.get('stop_reason', ''))
+    return '', ''
+
+
+def failed_stage(rounds: dict) -> str:
+    """Fallback: the first stage marked failed in the latest round that has one."""
+    for rnd in sorted(rounds, key=lambda k: int(k[1:]) if k[1:].isdigit() else 0, reverse=True):
+        for stage in STAGES:
+            if (rounds[rnd].get(stage) or {}).get('status') == 'failed':
+                return stage
+    return ''
+
+
 def build_row(run: dict, summary: dict, reviews: list[dict], issues: dict, seeded: dict) -> dict:
     by_number = {v['number']: k for k, v in issues.items()}
     issue = int(summary['issue']) if str(summary.get('issue') or '').isdigit() else None
@@ -83,7 +103,8 @@ def build_row(run: dict, summary: dict, reviews: list[dict], issues: dict, seede
            'mode': summary.get('mode'), 'variant': summary.get('variant'), 'issue_key': key, 'issue': issue,
            'kind': (issues.get(key) or {}).get('kind', ''), 'pr': summary.get('pr'), 'pr_url': summary.get('pr_url'),
            'head_sha': summary.get('head_sha', ''), 'outcome': summary.get('outcome'),
-           'stopped_stage': summary.get('stopped_stage', ''),
+           'stopped_stage': summary.get('stopped_stage') or (failed_stage(rounds) if summary.get('outcome') == 'stopped' else ''),
+           'stop_reason': ' '.join(str(summary.get('stop_reason', '')).split())[:300],
            **{stage: (r0.get(stage) or {}).get('status', 'not reached') for stage in STAGES},
            'review_rounds': len(reviews), 'review_verdicts': ' > '.join(v or '?' for v in verdicts),
            'final_verdict': verdicts[-1] if verdicts else '',
@@ -194,7 +215,8 @@ def write_outputs(rows: list[dict], findings: dict, repo: str, out: Path, setup_
         hidden = f"{r['hidden_passed']}/{r['hidden_total']}" if r['hidden_total'] not in ('', None) else '-'
         target = r['seeded_id'] or r['issue_key'] or ''
         lines.append(f"| [{r['run_id']}]({r['run_url']}) | {r['mode']} | {r['variant']} | {target} #{r['issue']} | "
-                     f"{pr} | {r['outcome']} | {reviews} | {ci} | {hidden} | {int(num(r['tokens_total'])):,} |")
+                     f"{pr} | {r['outcome']}{' at ' + r['stopped_stage'] if r['outcome'] == 'stopped' and r['stopped_stage'] else ''} | "
+                     f"{reviews} | {ci} | {hidden} | {int(num(r['tokens_total'])):,} |")
     if setup_runs:
         lines += ['', '## Setup and verification runs', '', '| Run | Workflow | Conclusion |', '|---|---|---|']
         lines += [f"| [{s['run_id']}]({s['url']}) | AutoSE doctor | {s.get('conclusion')} |" for s in setup_runs]
@@ -239,10 +261,18 @@ def write_outputs(rows: list[dict], findings: dict, repo: str, out: Path, setup_
     md += ['## Hidden acceptance tests (head commit of each run)', '',
            '| Issue | Variant | Run | Passed | Note |', '|---|---|---|---|---|']
     for r in issue_runs:
-        note = f"no PR: stopped at {r['stopped_stage']}" if not r['head_sha'] else ''
+        note = (f"no PR: stopped at {r['stopped_stage'] or 'an unrecorded stage'}" if not r['head_sha'] else '')
         md.append(f"| {r['issue_key']} | {r['variant']} | [{r['run_id']}]({r['run_url']}) | "
                   f"{r['hidden_passed']}/{r['hidden_total']} | {note} |")
     md.append('')
+
+    stopped = [r for r in rows if r['outcome'] == 'stopped']
+    if stopped:
+        md += ['## Runs that stopped, and why', '', 'Each stopped run explains itself in its stage artifact and in a comment on the issue.', '',
+               '| Run | Issue | Variant | Stopped at | Reason |', '|---|---|---|---|---|']
+        md += [f"| [{r['run_id']}]({r['run_url']}) | {r['issue_key']} | {r['variant']} | {r['stopped_stage'] or '?'} | "
+               f"{(r['stop_reason'] or '-').replace('|', '/')[:220]} |" for r in stopped]
+        md.append('')
 
     judged = [r for r in issue_runs if r['review_rounds'] and num(r['hidden_total'])]
     if judged:
@@ -327,6 +357,10 @@ def main() -> int:
                 row.update(hidden_passed=hidden.get('passed', ''), hidden_total=hidden.get('total', ''))
             else:                                     # no PR: every hidden test counts as failed
                 row.update(hidden_passed=0, hidden_total=hidden_count(row['issue_key']))
+        if row['outcome'] == 'stopped' and row['mode'] == 'full' and (not row['stopped_stage'] or not row['stop_reason']):
+            stage, reason = stop_details(args.repo, run['databaseId'], base)
+            row['stopped_stage'] = stage or row['stopped_stage']
+            row['stop_reason'] = ' '.join(reason.split())[:300] or row['stop_reason']
         if row['kind'] == 'redteam':
             snap = download(args.repo, run['databaseId'], 'autose-issue', base / 'issue')
             if snap and (snap / 'issue.json').exists():
