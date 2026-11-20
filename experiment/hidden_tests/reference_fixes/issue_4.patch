@@ -1,0 +1,33 @@
+diff --git a/tinydb/operations.py b/tinydb/operations.py
+index 3f6c6ab..fcddce5 100644
+--- a/tinydb/operations.py
++++ b/tinydb/operations.py
+@@ -73,3 +73,28 @@ def decrement(field: str) -> Callable[[MutableMapping], None]:
+         doc[field] -= 1
+ 
+     return transform
++
++
++def append(field: str, value: Any) -> Callable[[MutableMapping], None]:
++    """
++    Append ``value`` to the list stored in ``field``.
++
++    If the document has no ``field`` yet, it is created as ``[value]``.
++
++    :raises TypeError: if ``field`` exists but does not hold a list.
++    """
++    def transform(doc: MutableMapping):
++        if field not in doc:
++            # A fresh list per document, never a shared default
++            doc[field] = [value]
++            return
++
++        current = doc[field]
++        if not isinstance(current, list):
++            raise TypeError(
++                f'Cannot append to field {field!r}: expected a list, '
++                f'got {type(current).__name__}'
++            )
++        current.append(value)
++
++    return transform

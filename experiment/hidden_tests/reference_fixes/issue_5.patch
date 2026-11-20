@@ -1,0 +1,18 @@
+diff --git a/tinydb/table.py b/tinydb/table.py
+index 76470aa..f1c521e 100644
+--- a/tinydb/table.py
++++ b/tinydb/table.py
+@@ -31,6 +31,13 @@ class Document(dict):
+         super().__init__(value)
+         self.doc_id = doc_id
+ 
++    def __repr__(self):
++        # Show the document ID so printed results can be told apart, e.g.
++        # ``Document({'name': 'John'}, doc_id=1)``
++        return '{}({}, doc_id={!r})'.format(
++            type(self).__name__, dict.__repr__(self), self.doc_id
++        )
++
+ 
+ class Table:
+     """
