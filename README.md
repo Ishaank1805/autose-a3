@@ -45,3 +45,5 @@ See [`results/summary.md`](results/summary.md) (stage pass rates, the decision e
 > DRAFT: check every sentence and rewrite it so that it is true for your team before submitting.
 
 The workflow code, agent prompts, configuration, experiment kit (issue texts, hidden tests, seeded PRs, scripts) and the component view and stage map were generated with Claude (Anthropic); the architecture was designed by the assistant together with the code. Setup, runs and result collection were carried out with Google Antigravity following `ANTIGRAVITY_PROMPT.md`; every change it made to the provided code is listed in `results/fixes.md`. We reviewed the generated code and documents.
+
+Campaign 2 (reviewer redesign, held-out seeded PRs, repeated runs): see `experiment/campaign2.md`.

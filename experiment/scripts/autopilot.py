@@ -48,15 +48,20 @@ class GH:
     def __init__(self, repo: str):
         self.repo = repo
 
-    def run(self, *args: str) -> str:
-        for attempt in range(4):
+    TRANSIENT = ('timeout', 'timed out', 'connection', 'eof', 'tls', 'reset by peer', '502', '503', '504',
+                 'temporary failure', 'i/o timeout')
+
+    def run(self, *args: str, attempts: int = 4) -> str:
+        for attempt in range(attempts):
             proc = subprocess.run(['gh', *args], capture_output=True, text=True)
             if proc.returncode == 0:
                 return proc.stdout
-            if attempt < 3 and any(err in proc.stderr.lower() for err in ['network is unreachable', 'connection reset', 'timeout', 'handshake']):
-                time.sleep(2 ** attempt)
+            error = proc.stderr.strip()
+            if attempt + 1 < attempts and any(t in error.lower() for t in self.TRANSIENT):
+                time.sleep(10 * 2 ** attempt)          # transient network error: back off and retry
                 continue
-            raise RuntimeError(f"gh {' '.join(args[:3])} failed: {proc.stderr.strip()[:400]}")
+            raise RuntimeError(f"gh {' '.join(args[:3])} failed: {error[:400]}")
+        return ''
 
     def json(self, *args: str) -> Any:
         return json.loads(self.run(*args) or 'null')
@@ -103,6 +108,29 @@ def plan(experiments: list[str], repeats: int, review_repeats: int = 0, redteam:
                 add('full', key, variant, rep)
     if redteam:
         add('full', 'redteam_1', 'baseline', 1)                       # prompt-injection evidence (ADR-009)
+    return items
+
+
+def plan_campaign2(seeded_keys: list[str], review_repeats: int, redteam_repeats: int,
+                   full_variants: list[str]) -> list[dict]:
+    """Second campaign, after the reviewer redesign. Reviewer v2 (variant baseline) and the first campaign's
+    reviewer (variant reviewer-v1) review every seeded PR, dev set and held-out set, in complete pairs; then
+    repeated red-team runs on the final workflow; then, optionally, one more D1 repetition."""
+    items: list[dict] = []
+
+    def add(kind: str, key: str, variant: str, rep: int) -> None:
+        items.append({'id': f'c2:{kind}:{key}:{variant}:{rep}', 'kind': kind, 'key': key, 'variant': variant,
+                      'rep': rep, 'campaign': 2})
+
+    for rep in range(1, review_repeats + 1):
+        for key in seeded_keys:
+            for variant in ('baseline', 'reviewer-v1'):
+                add('review', key, variant, rep)
+    for rep in range(1, redteam_repeats + 1):
+        add('full', 'redteam_1', 'baseline', rep)
+    for key in ISSUE_KEYS:
+        for variant in full_variants:
+            add('full', key, variant, 1)
     return items
 
 
@@ -169,9 +197,17 @@ def run_plan(gh: GH, args: argparse.Namespace, sleep: Callable[[float], None] = 
     seeded = json.loads((common.SEEDED / 'index.json').read_text())
     log = json.loads(log_path().read_text()) if log_path().exists() else {'repo': gh.repo, 'items': {}, 'doctor': []}
     experiments = [v.strip() for v in args.experiments.split(',') if v.strip() and v.strip() != 'baseline']
-    log['settings'] = {'experiments': experiments, 'repeats': args.repeats, 'review_repeats': args.review_repeats,
-                       'redteam': args.redteam, 'max_usd': args.max_usd, 'max_tokens': args.max_tokens}
-    items = plan(experiments, args.repeats, args.review_repeats, args.redteam)
+    if getattr(args, 'campaign', 1) == 2:
+        keys = sorted(seeded, key=lambda k: int(k[1:]) if k[1:].isdigit() else 0)
+        full = ['baseline', 'single-agent'] if args.c2_full else []
+        log['settings_c2'] = {'seeded': keys, 'review_repeats': args.review_repeats or 2,
+                              'redteam_repeats': args.redteam_repeats, 'full_variants': full,
+                              'max_usd': args.max_usd, 'max_tokens': args.max_tokens}
+        items = plan_campaign2(keys, args.review_repeats or 2, args.redteam_repeats, full)
+    else:
+        log['settings'] = {'experiments': experiments, 'repeats': args.repeats, 'review_repeats': args.review_repeats,
+                           'redteam': args.redteam, 'max_usd': args.max_usd, 'max_tokens': args.max_tokens}
+        items = plan(experiments, args.repeats, args.review_repeats, args.redteam)
     skipped = [i['id'] for i in items if i['key'] not in (issues if i['kind'] == 'full' else seeded)]
     if skipped:
         print('not opened, skipped: ' + ', '.join(skipped), flush=True)
@@ -295,6 +331,10 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument('--retries', type=int, default=1)
     r.add_argument('--retry-errors', action='store_true')
     r.add_argument('--run-timeout-minutes', type=int, default=240)
+    r.add_argument('--campaign', type=int, choices=(1, 2), default=1,
+                   help='2: reviewer v2 vs reviewer-v1 on all seeded PRs, repeated red-team runs')
+    r.add_argument('--redteam-repeats', type=int, default=3, help='campaign 2: red-team runs on the final workflow')
+    r.add_argument('--c2-full', action='store_true', help='campaign 2: also one more D1 repetition on the five issues')
     args = ap.parse_args(argv)
     common.guard(args.repo)
     gh = GH(args.repo)

@@ -1,0 +1,32 @@
+diff --git a/tests/test_tinydb.py b/tests/test_tinydb.py
+index 9ff866f..81e25fa 100644
+--- a/tests/test_tinydb.py
++++ b/tests/test_tinydb.py
+@@ -837,3 +837,11 @@ def test_lambda_query():
+     query.is_cacheable = lambda: False
+     assert db.search(query) == [{'foo': 'bar'}]
+     assert not db._query_cache
++
++
++def test_update_multiple_accepts_a_generator(db: TinyDB):
++    db.drop_tables()
++    db.insert_multiple([{'a': 1}, {'a': 2}])
++    pairs = (({'b': i}, where('a') == i) for i in (1, 2))
++    assert sorted(db.update_multiple(pairs)) == [1, 2]
++    assert len(db.search(where('b').exists())) == 2
+diff --git a/tinydb/table.py b/tinydb/table.py
+index 76470aa..a927685 100644
+--- a/tinydb/table.py
++++ b/tinydb/table.py
+@@ -551,6 +551,11 @@ class Table:
+                 # data
+                 table[doc_id].update(fields)
+ 
++        # Materialize ``updates`` once: it is iterated again for every
++        # document, so a one-shot iterator (e.g. a generator) would otherwise
++        # be exhausted after the first document.
++        updates = list(updates)
++
+         # Perform the update operation for documents specified by a query
+ 
+         # Collect affected doc_ids

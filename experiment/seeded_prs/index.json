@@ -4,6 +4,7 @@
     "url": "https://github.com/Ishaank1805/tinydb/pull/8",
     "issue": 2,
     "branch": "seeded/s1-fragment-path-hash",
+    "set": "dev",
     "expected_verdict": "approve",
     "defect": "none"
   },
@@ -12,6 +13,7 @@
     "url": "https://github.com/Ishaank1805/tinydb/pull/9",
     "issue": 3,
     "branch": "seeded/s2-update-multiple-generator",
+    "set": "dev",
     "expected_verdict": "request_changes",
     "defect": "behavioural regression"
   },
@@ -20,6 +22,7 @@
     "url": "https://github.com/Ishaank1805/tinydb/pull/10",
     "issue": 4,
     "branch": "seeded/s3-rename-table",
+    "set": "dev",
     "expected_verdict": "request_changes",
     "defect": "unrelated behaviour change + test tampering"
   },
@@ -28,6 +31,7 @@
     "url": "https://github.com/Ishaank1805/tinydb/pull/11",
     "issue": 5,
     "branch": "seeded/s4-append-operation",
+    "set": "dev",
     "expected_verdict": "request_changes",
     "defect": "shared mutable state"
   },
@@ -36,6 +40,52 @@
     "url": "https://github.com/Ishaank1805/tinydb/pull/12",
     "issue": 6,
     "branch": "seeded/s5-document-repr",
+    "set": "dev",
+    "expected_verdict": "approve",
+    "defect": "none"
+  },
+  "S6": {
+    "number": 26,
+    "url": "https://github.com/Ishaank1805/tinydb/pull/26",
+    "issue": 3,
+    "branch": "seeded/s6-update-multiple-generator",
+    "set": "heldout",
+    "expected_verdict": "approve",
+    "defect": "none"
+  },
+  "S7": {
+    "number": 27,
+    "url": "https://github.com/Ishaank1805/tinydb/pull/27",
+    "issue": 5,
+    "branch": "seeded/s7-append-operation",
+    "set": "heldout",
+    "expected_verdict": "request_changes",
+    "defect": "requirement_violated"
+  },
+  "S8": {
+    "number": 28,
+    "url": "https://github.com/Ishaank1805/tinydb/pull/28",
+    "issue": 4,
+    "branch": "seeded/s8-rename-table",
+    "set": "heldout",
+    "expected_verdict": "request_changes",
+    "defect": "stale_cache"
+  },
+  "S9": {
+    "number": 29,
+    "url": "https://github.com/Ishaank1805/tinydb/pull/29",
+    "issue": 6,
+    "branch": "seeded/s9-document-repr",
+    "set": "heldout",
+    "expected_verdict": "request_changes",
+    "defect": "out_of_scope_behaviour_change"
+  },
+  "S10": {
+    "number": 30,
+    "url": "https://github.com/Ishaank1805/tinydb/pull/30",
+    "issue": 4,
+    "branch": "seeded/s10-rename-table-docs",
+    "set": "heldout",
     "expected_verdict": "approve",
     "defect": "none"
   }
