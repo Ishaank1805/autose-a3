@@ -533,8 +533,23 @@
       "variant": "baseline",
       "rep": 1,
       "campaign": 2,
-      "status": "pending",
-      "attempts": [],
+      "status": "done",
+      "attempts": [
+        {
+          "trigger": "/autose review #2",
+          "number": 8,
+          "since": "2026-11-20T23:08:19Z",
+          "triggered_at": "2026-11-20T23:10:21Z",
+          "run_id": 44834792583,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44834792583",
+          "conclusion": "success",
+          "finished_at": "2026-11-20T23:12:44Z",
+          "outcome": "approved",
+          "pr": "8",
+          "tokens": 54169,
+          "usd": 0.0
+        }
+      ],
       "allowance": 2
     },
     "c2:review:S1:reviewer-v1:1": {
