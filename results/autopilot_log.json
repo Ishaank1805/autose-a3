@@ -585,8 +585,23 @@
       "variant": "baseline",
       "rep": 1,
       "campaign": 2,
-      "status": "pending",
-      "attempts": [],
+      "status": "done",
+      "attempts": [
+        {
+          "trigger": "/autose review #3",
+          "number": 9,
+          "since": "2026-11-20T23:11:20Z",
+          "triggered_at": "2026-11-20T23:13:21Z",
+          "run_id": 44835177517,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44835177517",
+          "conclusion": "success",
+          "finished_at": "2026-11-20T23:15:45Z",
+          "outcome": "approved",
+          "pr": "9",
+          "tokens": 76162,
+          "usd": 0.0
+        }
+      ],
       "allowance": 2
     },
     "c2:review:S2:reviewer-v1:1": {
@@ -596,8 +611,23 @@
       "variant": "reviewer-v1",
       "rep": 1,
       "campaign": 2,
-      "status": "pending",
-      "attempts": [],
+      "status": "done",
+      "attempts": [
+        {
+          "trigger": "/autose review #3 variant=reviewer-v1",
+          "number": 9,
+          "since": "2026-11-20T23:13:47Z",
+          "triggered_at": "2026-11-20T23:15:49Z",
+          "run_id": 44835481627,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44835481627",
+          "conclusion": "success",
+          "finished_at": "2026-11-20T23:18:12Z",
+          "outcome": "approved",
+          "pr": "9",
+          "tokens": 76186,
+          "usd": 0.0
+        }
+      ],
       "allowance": 2
     },
     "c2:review:S3:baseline:1": {
@@ -607,8 +637,23 @@
       "variant": "baseline",
       "rep": 1,
       "campaign": 2,
-      "status": "pending",
-      "attempts": [],
+      "status": "done",
+      "attempts": [
+        {
+          "trigger": "/autose review #4",
+          "number": 10,
+          "since": "2026-11-20T23:16:15Z",
+          "triggered_at": "2026-11-20T23:18:17Z",
+          "run_id": 44835793924,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44835793924",
+          "conclusion": "success",
+          "finished_at": "2026-11-20T23:21:11Z",
+          "outcome": "approved",
+          "pr": "10",
+          "tokens": 147124,
+          "usd": 0.0
+        }
+      ],
       "allowance": 2
     },
     "c2:review:S3:reviewer-v1:1": {
@@ -618,8 +663,17 @@
       "variant": "reviewer-v1",
       "rep": 1,
       "campaign": 2,
-      "status": "pending",
-      "attempts": [],
+      "status": "running",
+      "attempts": [
+        {
+          "trigger": "/autose review #4 variant=reviewer-v1",
+          "number": 10,
+          "since": "2026-11-20T23:19:13Z",
+          "triggered_at": "2026-11-20T23:21:14Z",
+          "run_id": 44836167362,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44836167362"
+        }
+      ],
       "allowance": 2
     },
     "c2:review:S4:baseline:1": {
@@ -1028,6 +1082,116 @@
       "status": "pending",
       "attempts": [],
       "allowance": 2
+    },
+    "c2:full:issue_1:baseline:1": {
+      "id": "c2:full:issue_1:baseline:1",
+      "kind": "full",
+      "key": "issue_1",
+      "variant": "baseline",
+      "rep": 1,
+      "campaign": 2,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "c2:full:issue_1:single-agent:1": {
+      "id": "c2:full:issue_1:single-agent:1",
+      "kind": "full",
+      "key": "issue_1",
+      "variant": "single-agent",
+      "rep": 1,
+      "campaign": 2,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "c2:full:issue_2:baseline:1": {
+      "id": "c2:full:issue_2:baseline:1",
+      "kind": "full",
+      "key": "issue_2",
+      "variant": "baseline",
+      "rep": 1,
+      "campaign": 2,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "c2:full:issue_2:single-agent:1": {
+      "id": "c2:full:issue_2:single-agent:1",
+      "kind": "full",
+      "key": "issue_2",
+      "variant": "single-agent",
+      "rep": 1,
+      "campaign": 2,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "c2:full:issue_3:baseline:1": {
+      "id": "c2:full:issue_3:baseline:1",
+      "kind": "full",
+      "key": "issue_3",
+      "variant": "baseline",
+      "rep": 1,
+      "campaign": 2,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "c2:full:issue_3:single-agent:1": {
+      "id": "c2:full:issue_3:single-agent:1",
+      "kind": "full",
+      "key": "issue_3",
+      "variant": "single-agent",
+      "rep": 1,
+      "campaign": 2,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "c2:full:issue_4:baseline:1": {
+      "id": "c2:full:issue_4:baseline:1",
+      "kind": "full",
+      "key": "issue_4",
+      "variant": "baseline",
+      "rep": 1,
+      "campaign": 2,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "c2:full:issue_4:single-agent:1": {
+      "id": "c2:full:issue_4:single-agent:1",
+      "kind": "full",
+      "key": "issue_4",
+      "variant": "single-agent",
+      "rep": 1,
+      "campaign": 2,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "c2:full:issue_5:baseline:1": {
+      "id": "c2:full:issue_5:baseline:1",
+      "kind": "full",
+      "key": "issue_5",
+      "variant": "baseline",
+      "rep": 1,
+      "campaign": 2,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "c2:full:issue_5:single-agent:1": {
+      "id": "c2:full:issue_5:single-agent:1",
+      "kind": "full",
+      "key": "issue_5",
+      "variant": "single-agent",
+      "rep": 1,
+      "campaign": 2,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
     }
   },
   "doctor": [
@@ -1064,7 +1228,10 @@
     ],
     "review_repeats": 2,
     "redteam_repeats": 3,
-    "full_variants": [],
+    "full_variants": [
+      "baseline",
+      "single-agent"
+    ],
     "max_usd": 60.0,
     "max_tokens": 60000000
   }
