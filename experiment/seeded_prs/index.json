@@ -1,0 +1,42 @@
+{
+  "S1": {
+    "number": 8,
+    "url": "https://github.com/Ishaank1805/tinydb/pull/8",
+    "issue": 2,
+    "branch": "seeded/s1-fragment-path-hash",
+    "expected_verdict": "approve",
+    "defect": "none"
+  },
+  "S2": {
+    "number": 9,
+    "url": "https://github.com/Ishaank1805/tinydb/pull/9",
+    "issue": 3,
+    "branch": "seeded/s2-update-multiple-generator",
+    "expected_verdict": "request_changes",
+    "defect": "behavioural regression"
+  },
+  "S3": {
+    "number": 10,
+    "url": "https://github.com/Ishaank1805/tinydb/pull/10",
+    "issue": 4,
+    "branch": "seeded/s3-rename-table",
+    "expected_verdict": "request_changes",
+    "defect": "unrelated behaviour change + test tampering"
+  },
+  "S4": {
+    "number": 11,
+    "url": "https://github.com/Ishaank1805/tinydb/pull/11",
+    "issue": 5,
+    "branch": "seeded/s4-append-operation",
+    "expected_verdict": "request_changes",
+    "defect": "shared mutable state"
+  },
+  "S5": {
+    "number": 12,
+    "url": "https://github.com/Ishaank1805/tinydb/pull/12",
+    "issue": 6,
+    "branch": "seeded/s5-document-repr",
+    "expected_verdict": "approve",
+    "defect": "none"
+  }
+}
