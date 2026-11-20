@@ -432,7 +432,7 @@
       "key": "issue_4",
       "variant": "single-agent",
       "rep": 1,
-      "status": "running",
+      "status": "done",
       "attempts": [
         {
           "trigger": "/autose variant=single-agent",
@@ -440,7 +440,13 @@
           "since": "2026-11-20T12:29:04Z",
           "triggered_at": "2026-11-20T12:31:11Z",
           "run_id": 44736456570,
-          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44736456570"
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44736456570",
+          "conclusion": "success",
+          "finished_at": "2026-11-20T12:39:37Z",
+          "outcome": "approved",
+          "pr": "19",
+          "tokens": 805571,
+          "usd": 0.0
         }
       ],
       "allowance": 2
@@ -451,8 +457,23 @@
       "key": "issue_5",
       "variant": "baseline",
       "rep": 1,
-      "status": "pending",
-      "attempts": [],
+      "status": "done",
+      "attempts": [
+        {
+          "trigger": "label \"autose\"",
+          "number": 6,
+          "since": "2026-11-20T12:37:39Z",
+          "triggered_at": "2026-11-20T12:39:42Z",
+          "run_id": 44737640143,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44737640143",
+          "conclusion": "success",
+          "finished_at": "2026-11-20T12:47:47Z",
+          "outcome": "approved",
+          "pr": "20",
+          "tokens": 553501,
+          "usd": 0.0
+        }
+      ],
       "allowance": 2
     },
     "full:issue_5:single-agent:1": {
@@ -461,8 +482,15 @@
       "key": "issue_5",
       "variant": "single-agent",
       "rep": 1,
-      "status": "pending",
-      "attempts": [],
+      "status": "running",
+      "attempts": [
+        {
+          "trigger": "/autose variant=single-agent",
+          "number": 6,
+          "since": "2026-11-20T12:45:49Z",
+          "triggered_at": "2026-11-20T12:47:51Z"
+        }
+      ],
       "allowance": 2
     },
     "full:redteam_1:baseline:1": {
