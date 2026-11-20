@@ -1,0 +1,12 @@
+# Stage map
+
+| # | Stage | Agent | Inputs | Artifact | Check before moving on | Who decides | If the check fails |
+|---|---|---|---|---|---|---|---|
+| 1 | Requirements | Planner + A1 skill | sanitised issue snapshot, maintainer notes | `spec.md` | Every criterion has Given/When/Then and a verification line, no vague outcome words; then a separate judge model must mark every criterion testable | Harness (structural check + judge verdicts) | Agent revises (max 3 submissions); else stop, questions posted on the issue |
+| 2 | Design | Planner | `spec.md`, A2 `ARCHITECTURE.md`, feedback | `design.md` | Every path exists (or is marked new) and is editable; every named function/class exists in that file per AST (or is new with an existing parent class); every criterion has a planned `test_ac<N>_*` | Harness | Agent revises (max 3); else stop |
+| 3 | Implementation | Implementer | `spec.md`, `design.md`, feedback | `diff.patch` | Build command passes and the suite can be collected; changes outside the allowed paths are reverted | Harness | Agent fixes (3 tries per session); next attempt (max 3 per design); redesign (max 1); else stop |
+| 4 | Testing | Test author, then harness | criteria, planned tests, disputes | `test_report.md` | Full suite green (JUnit), every criterion has a test, no test from the base commit disappeared; fail-to-pass recorded (soft) | Harness | Back to stage 3 with the failures; after the attempts, back to stage 2; else stop |
+| 5 | Release | none (deterministic) | committed change | `pr.md` + PR link | PR is open and the dispatched `ci.yml` run concludes `success` | Harness | CI failure goes back to stage 3 (within attempts); else stop |
+| 6 | Review | Reviewer (own job) | issue snapshot, PR diff, repo at PR head | `review.md` | Approval only after the reviewer's own pytest run passed, every derived requirement is met and there is no blocker/major finding; a change request needs a blocker/major finding and a target stage | Reviewer verdict, gated by the harness; merge by a human | Back to requirements/design/implementation, at most twice (rework jobs), then a human decides |
+
+Every artifact is uploaded per job (`autose-state-r<k>`, `autose-review-r<k>`), mirrored as a live table in the issue's status comment, and versioned in `history/` when a stage repeats.
