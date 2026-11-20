@@ -19,3 +19,18 @@ change what was built. When a run shows an ADR was wrong, keep it, mark it
 | D8 Reviewer independence | `.github/workflows/autose-review.yml`, `autose/review.py` (evidence gate), `prompts/reviewer.md` | `review.*`, variants `reviewer-sees-rationale`, `reviewer-same-model` | seeded PR confusion table |
 | D9 Safety and failures | `autose/untrusted.py`, `autose/secretstore.py`, `autose/usage.py`, timeouts in the workflows | `budgets.*` | red-team issue (optional), budget stops |
 | D10 Triggers | `autose.yml` (`on:`, `concurrency:`), `autose/gate.py` | `trigger.*` | gate skips and permission refusals |
+
+## Architecture Decisions
+
+| ADR | Title | Status |
+|---|---|---|
+| [ADR-001](ADR-001.md) | Divide the workflow into five model roles, with one planner covering requirements and design | Accepted — baseline |
+| [ADR-002](ADR-002.md) | Use a deterministic controller: a state machine for stages 1–5 plus an unrolled GitHub Actions review DAG | Accepted — baseline |
+| [ADR-003](ADR-003.md) | Pass structured, sanitised artifacts between stages and deliberately withhold implementer reasoning from the reviewer | Accepted — baseline |
+| [ADR-004](ADR-004.md) | Store cross-job state as GitHub Actions artifacts and a live issue status comment, not in cache or uncommitted workspace state | Accepted — baseline |
+| [ADR-005](ADR-005.md) | Enforce least privilege at job, process, tool, command, and path boundaries | Accepted — baseline |
+| [ADR-006](ADR-006.md) | Allocate model capability by role and evaluate reviewer diversity experimentally | Accepted — baseline |
+| [ADR-007](ADR-007.md) | Gate stages with deterministic checks; use LLM judgement only as bounded supporting evidence | Accepted — baseline |
+| [ADR-008](ADR-008.md) | Make review independent through fresh execution, minimal context, a credential-free model step, and an adversarial rubric | Accepted — baseline |
+| [ADR-009](ADR-009.md) | Treat issues, comments, PR text, and tool output as hostile data; stop safely on uncertainty or exhausted budget | Accepted — baseline |
+| [ADR-010](ADR-010.md) | Restrict triggers to trusted actors, protect the target repository, and serialize work per issue | Accepted — baseline |
