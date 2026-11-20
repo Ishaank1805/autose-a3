@@ -257,7 +257,7 @@
       "key": "S5",
       "variant": "reviewer-sees-rationale",
       "rep": 1,
-      "status": "running",
+      "status": "done",
       "attempts": [
         {
           "trigger": "/autose review #6 variant=reviewer-sees-rationale",
@@ -265,7 +265,13 @@
           "since": "2026-11-20T11:42:43Z",
           "triggered_at": "2026-11-20T11:44:45Z",
           "run_id": 44730088205,
-          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44730088205"
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44730088205",
+          "conclusion": "success",
+          "finished_at": "2026-11-20T11:47:10Z",
+          "outcome": "approved",
+          "pr": "12",
+          "tokens": 59643,
+          "usd": 0.0
         }
       ],
       "allowance": 2
@@ -276,8 +282,23 @@
       "key": "issue_1",
       "variant": "single-agent",
       "rep": 1,
-      "status": "pending",
-      "attempts": [],
+      "status": "done",
+      "attempts": [
+        {
+          "trigger": "/autose variant=single-agent",
+          "number": 2,
+          "since": "2026-11-20T11:45:17Z",
+          "triggered_at": "2026-11-20T11:47:19Z",
+          "run_id": 44730437474,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44730437474",
+          "conclusion": "success",
+          "finished_at": "2026-11-20T11:57:36Z",
+          "outcome": "review_error",
+          "pr": "14",
+          "tokens": 1080915,
+          "usd": 0.0
+        }
+      ],
       "allowance": 2
     },
     "full:issue_2:baseline:1": {
@@ -286,8 +307,17 @@
       "key": "issue_2",
       "variant": "baseline",
       "rep": 1,
-      "status": "pending",
-      "attempts": [],
+      "status": "running",
+      "attempts": [
+        {
+          "trigger": "label \"autose\"",
+          "number": 3,
+          "since": "2026-11-20T11:55:39Z",
+          "triggered_at": "2026-11-20T11:57:46Z",
+          "run_id": 44731826531,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44731826531"
+        }
+      ],
       "allowance": 2
     },
     "full:issue_2:single-agent:1": {
