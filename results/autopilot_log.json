@@ -382,7 +382,7 @@
       "key": "issue_3",
       "variant": "single-agent",
       "rep": 1,
-      "status": "running",
+      "status": "done",
       "attempts": [
         {
           "trigger": "/autose variant=single-agent",
@@ -390,7 +390,13 @@
           "since": "2026-11-20T12:12:11Z",
           "triggered_at": "2026-11-20T12:14:13Z",
           "run_id": 44734094615,
-          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44734094615"
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44734094615",
+          "conclusion": "success",
+          "finished_at": "2026-11-20T12:21:36Z",
+          "outcome": "approved",
+          "pr": "17",
+          "tokens": 928742,
+          "usd": 0.0
         }
       ],
       "allowance": 2
@@ -401,8 +407,23 @@
       "key": "issue_4",
       "variant": "baseline",
       "rep": 1,
-      "status": "pending",
-      "attempts": [],
+      "status": "done",
+      "attempts": [
+        {
+          "trigger": "label \"autose\"",
+          "number": 5,
+          "since": "2026-11-20T12:19:38Z",
+          "triggered_at": "2026-11-20T12:21:41Z",
+          "run_id": 44735135652,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44735135652",
+          "conclusion": "success",
+          "finished_at": "2026-11-20T12:31:01Z",
+          "outcome": "approved",
+          "pr": "18",
+          "tokens": 519760,
+          "usd": 0.0
+        }
+      ],
       "allowance": 2
     },
     "full:issue_4:single-agent:1": {
@@ -411,8 +432,17 @@
       "key": "issue_4",
       "variant": "single-agent",
       "rep": 1,
-      "status": "pending",
-      "attempts": [],
+      "status": "running",
+      "attempts": [
+        {
+          "trigger": "/autose variant=single-agent",
+          "number": 5,
+          "since": "2026-11-20T12:29:04Z",
+          "triggered_at": "2026-11-20T12:31:11Z",
+          "run_id": 44736456570,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44736456570"
+        }
+      ],
       "allowance": 2
     },
     "full:issue_5:baseline:1": {
