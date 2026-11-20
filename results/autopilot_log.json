@@ -663,7 +663,7 @@
       "variant": "reviewer-v1",
       "rep": 1,
       "campaign": 2,
-      "status": "running",
+      "status": "done",
       "attempts": [
         {
           "trigger": "/autose review #4 variant=reviewer-v1",
@@ -671,7 +671,13 @@
           "since": "2026-11-20T23:19:13Z",
           "triggered_at": "2026-11-20T23:21:14Z",
           "run_id": 44836167362,
-          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44836167362"
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44836167362",
+          "conclusion": "success",
+          "finished_at": "2026-11-20T23:24:08Z",
+          "outcome": "approved",
+          "pr": "10",
+          "tokens": 77135,
+          "usd": 0.0
         }
       ],
       "allowance": 2
@@ -684,8 +690,24 @@
       "rep": 1,
       "campaign": 2,
       "status": "pending",
-      "attempts": [],
-      "allowance": 2
+      "attempts": [
+        {
+          "trigger": "/autose review #5",
+          "number": 11,
+          "since": "2026-11-20T23:22:10Z",
+          "triggered_at": "2026-11-20T23:24:12Z",
+          "run_id": 44836537364,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44836537364",
+          "conclusion": "success",
+          "finished_at": "2026-11-20T23:26:03Z",
+          "outcome": "review_error",
+          "pr": "11",
+          "tokens": 17608,
+          "usd": 0.0,
+          "note": "stopped by the provider's daily quota; re-run after the reset"
+        }
+      ],
+      "allowance": 3
     },
     "c2:review:S4:reviewer-v1:1": {
       "id": "c2:review:S4:reviewer-v1:1",
