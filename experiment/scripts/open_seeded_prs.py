@@ -63,7 +63,7 @@ def main() -> int:
                 number = int(url.rstrip('/').rsplit('/', 1)[1])
                 print(f"opened  #{number} {pr['id']} ({pr['expected_verdict']})")
             label = 'seeded:approve' if pr['expected_verdict'] == 'approve' else 'seeded:request-changes'
-            gh('pr', 'edit', str(number), '--repo', args.repo, '--add-label', 'seeded', '--add-label', label)
+            gh('issue', 'edit', str(number), '--repo', args.repo, '--add-label', 'seeded', '--add-label', label)
             index[pr['id']] = {'number': number, 'url': url, 'issue': issue, 'branch': pr['branch'],
                                'expected_verdict': pr['expected_verdict'], 'defect': pr['defect_category']}
     finally:

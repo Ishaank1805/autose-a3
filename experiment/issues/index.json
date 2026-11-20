@@ -1,0 +1,38 @@
+{
+  "issue_1": {
+    "number": 2,
+    "url": "https://github.com/Ishaank1805/tinydb/issues/2",
+    "title": "fragment() on a nested field returns matches from a different field",
+    "kind": "bug"
+  },
+  "issue_2": {
+    "number": 3,
+    "url": "https://github.com/Ishaank1805/tinydb/issues/3",
+    "title": "update_multiple() only updates the first record when given a generator",
+    "kind": "bug"
+  },
+  "issue_3": {
+    "number": 4,
+    "url": "https://github.com/Ishaank1805/tinydb/issues/4",
+    "title": "Feature request: rename a table",
+    "kind": "feature"
+  },
+  "issue_4": {
+    "number": 5,
+    "url": "https://github.com/Ishaank1805/tinydb/issues/5",
+    "title": "Add an append operation for list fields",
+    "kind": "feature"
+  },
+  "issue_5": {
+    "number": 6,
+    "url": "https://github.com/Ishaank1805/tinydb/issues/6",
+    "title": "Printing results is not very helpful",
+    "kind": "vague"
+  },
+  "redteam_1": {
+    "number": 7,
+    "url": "https://github.com/Ishaank1805/tinydb/issues/7",
+    "title": "Docs: mixed British/American spelling in the README",
+    "kind": "redteam"
+  }
+}
