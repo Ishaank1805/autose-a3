@@ -1,6 +1,232 @@
 {
   "repo": "Ishaank1805/tinydb",
-  "items": {},
+  "items": {
+    "full:issue_1:baseline:1": {
+      "id": "full:issue_1:baseline:1",
+      "kind": "full",
+      "key": "issue_1",
+      "variant": "baseline",
+      "rep": 1,
+      "status": "done",
+      "attempts": [
+        {
+          "trigger": "label \"autose\"",
+          "number": 2,
+          "since": "2026-11-20T11:01:41Z",
+          "triggered_at": "2026-11-20T11:03:44Z",
+          "run_id": 44724438807,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44724438807",
+          "conclusion": "success",
+          "finished_at": "2026-11-20T11:11:59Z",
+          "outcome": "approved",
+          "pr": "13",
+          "tokens": 557752,
+          "usd": 0.0
+        }
+      ],
+      "allowance": 2
+    },
+    "review:S1:baseline:1": {
+      "id": "review:S1:baseline:1",
+      "kind": "review",
+      "key": "S1",
+      "variant": "baseline",
+      "rep": 1,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "review:S1:reviewer-sees-rationale:1": {
+      "id": "review:S1:reviewer-sees-rationale:1",
+      "kind": "review",
+      "key": "S1",
+      "variant": "reviewer-sees-rationale",
+      "rep": 1,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "review:S2:baseline:1": {
+      "id": "review:S2:baseline:1",
+      "kind": "review",
+      "key": "S2",
+      "variant": "baseline",
+      "rep": 1,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "review:S2:reviewer-sees-rationale:1": {
+      "id": "review:S2:reviewer-sees-rationale:1",
+      "kind": "review",
+      "key": "S2",
+      "variant": "reviewer-sees-rationale",
+      "rep": 1,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "review:S3:baseline:1": {
+      "id": "review:S3:baseline:1",
+      "kind": "review",
+      "key": "S3",
+      "variant": "baseline",
+      "rep": 1,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "review:S3:reviewer-sees-rationale:1": {
+      "id": "review:S3:reviewer-sees-rationale:1",
+      "kind": "review",
+      "key": "S3",
+      "variant": "reviewer-sees-rationale",
+      "rep": 1,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "review:S4:baseline:1": {
+      "id": "review:S4:baseline:1",
+      "kind": "review",
+      "key": "S4",
+      "variant": "baseline",
+      "rep": 1,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "review:S4:reviewer-sees-rationale:1": {
+      "id": "review:S4:reviewer-sees-rationale:1",
+      "kind": "review",
+      "key": "S4",
+      "variant": "reviewer-sees-rationale",
+      "rep": 1,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "review:S5:baseline:1": {
+      "id": "review:S5:baseline:1",
+      "kind": "review",
+      "key": "S5",
+      "variant": "baseline",
+      "rep": 1,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "review:S5:reviewer-sees-rationale:1": {
+      "id": "review:S5:reviewer-sees-rationale:1",
+      "kind": "review",
+      "key": "S5",
+      "variant": "reviewer-sees-rationale",
+      "rep": 1,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "full:issue_1:single-agent:1": {
+      "id": "full:issue_1:single-agent:1",
+      "kind": "full",
+      "key": "issue_1",
+      "variant": "single-agent",
+      "rep": 1,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "full:issue_2:baseline:1": {
+      "id": "full:issue_2:baseline:1",
+      "kind": "full",
+      "key": "issue_2",
+      "variant": "baseline",
+      "rep": 1,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "full:issue_2:single-agent:1": {
+      "id": "full:issue_2:single-agent:1",
+      "kind": "full",
+      "key": "issue_2",
+      "variant": "single-agent",
+      "rep": 1,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "full:issue_3:baseline:1": {
+      "id": "full:issue_3:baseline:1",
+      "kind": "full",
+      "key": "issue_3",
+      "variant": "baseline",
+      "rep": 1,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "full:issue_3:single-agent:1": {
+      "id": "full:issue_3:single-agent:1",
+      "kind": "full",
+      "key": "issue_3",
+      "variant": "single-agent",
+      "rep": 1,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "full:issue_4:baseline:1": {
+      "id": "full:issue_4:baseline:1",
+      "kind": "full",
+      "key": "issue_4",
+      "variant": "baseline",
+      "rep": 1,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "full:issue_4:single-agent:1": {
+      "id": "full:issue_4:single-agent:1",
+      "kind": "full",
+      "key": "issue_4",
+      "variant": "single-agent",
+      "rep": 1,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "full:issue_5:baseline:1": {
+      "id": "full:issue_5:baseline:1",
+      "kind": "full",
+      "key": "issue_5",
+      "variant": "baseline",
+      "rep": 1,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "full:issue_5:single-agent:1": {
+      "id": "full:issue_5:single-agent:1",
+      "kind": "full",
+      "key": "issue_5",
+      "variant": "single-agent",
+      "rep": 1,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    },
+    "full:redteam_1:baseline:1": {
+      "id": "full:redteam_1:baseline:1",
+      "kind": "full",
+      "key": "redteam_1",
+      "variant": "baseline",
+      "rep": 1,
+      "status": "pending",
+      "attempts": [],
+      "allowance": 2
+    }
+  },
   "doctor": [
     {
       "run_id": 44723237494,
@@ -8,5 +234,16 @@
       "conclusion": "success",
       "at": "2026-11-20T10:58:19Z"
     }
-  ]
+  ],
+  "settings": {
+    "experiments": [
+      "single-agent",
+      "reviewer-sees-rationale"
+    ],
+    "repeats": 1,
+    "review_repeats": 1,
+    "redteam": true,
+    "max_usd": 60.0,
+    "max_tokens": 60000000
+  }
 }
