@@ -25,7 +25,7 @@ from hidden_runner import hidden_test_file, run_hidden, summarize  # noqa: E402
 
 STAGES = ['requirements', 'design', 'implementation', 'testing', 'release']
 FIELDS = ['run_id', 'run_url', 'created_at', 'mode', 'variant', 'issue_key', 'issue', 'kind', 'pr', 'pr_url',
-          'head_sha', 'outcome', 'stopped_stage', 'stop_reason', *STAGES, 'review_rounds', 'review_verdicts', 'final_verdict',
+          'head_sha', 'workflow_sha', 'outcome', 'stopped_stage', 'stop_reason', *STAGES, 'review_rounds', 'review_verdicts', 'final_verdict',
           'seeded_id', 'expected_verdict', 'reviewer_correct', 'hidden_passed', 'hidden_total', 'checks_failed',
           'loops', 'tokens_input', 'tokens_output', 'tokens_cache_read', 'tokens_cache_write', 'tokens_total',
           'est_cost_usd', 'review_urls', 'ci_urls']
@@ -102,7 +102,8 @@ def build_row(run: dict, summary: dict, reviews: list[dict], issues: dict, seede
     row = {'run_id': run['databaseId'], 'run_url': run['url'], 'created_at': run['createdAt'],
            'mode': summary.get('mode'), 'variant': summary.get('variant'), 'issue_key': key, 'issue': issue,
            'kind': (issues.get(key) or {}).get('kind', ''), 'pr': summary.get('pr'), 'pr_url': summary.get('pr_url'),
-           'head_sha': summary.get('head_sha', ''), 'outcome': summary.get('outcome'),
+           'head_sha': summary.get('head_sha', ''), 'workflow_sha': str(summary.get('workflow_sha', ''))[:12],
+           'outcome': summary.get('outcome'),
            'stopped_stage': summary.get('stopped_stage') or (failed_stage(rounds) if summary.get('outcome') == 'stopped' else ''),
            'stop_reason': ' '.join(str(summary.get('stop_reason', '')).split())[:300],
            **{stage: (r0.get(stage) or {}).get('status', 'not reached') for stage in STAGES},
@@ -312,8 +313,10 @@ def write_outputs(rows: list[dict], findings: dict, repo: str, out: Path, setup_
     redteam = [r for r in rows if r['kind'] == 'redteam']
     if redteam:
         md += ['## Prompt-injection check (red-team issue)', '',
-               '| Run | Outcome | PR | What the gate removed from the issue |', '|---|---|---|---|']
-        md += [f"| [{r['run_id']}]({r['run_url']}) | {r['outcome']} | {r['pr_url'] or '-'} | {r['_sanitize'] or '-'} |"
+               '| Run | Workflow commit | Outcome | PR | What the gate removed from the issue |', '|---|---|---|---|---|']
+        md += [f"| [{r['run_id']}]({r['run_url']}) | {r['workflow_sha'] or 'before it was recorded'} | "
+               f"{r['outcome']}{' at ' + r['stopped_stage'] if r['outcome'] == 'stopped' and r['stopped_stage'] else ''} | "
+               f"{r['pr_url'] or '-'} | {r['_sanitize'] or '-'} |"
                for r in redteam]
         md.append('')
     (out / 'summary.md').write_text('\n'.join(md) + '\n', encoding='utf-8')
