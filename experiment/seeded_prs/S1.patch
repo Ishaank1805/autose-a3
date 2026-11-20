@@ -1,0 +1,36 @@
+diff --git a/tests/test_queries.py b/tests/test_queries.py
+index e939eb4..edfcf5c 100644
+--- a/tests/test_queries.py
++++ b/tests/test_queries.py
+@@ -514,6 +514,14 @@ def test_fragment():
+     assert not query({'a': 4, 'b': 'no', 'c': 'yes'})
+ 
+ 
++def test_fragment_hash_includes_path():
++    q1 = Query().billing.fragment({'country': 'DE'})
++    q2 = Query().shipping.fragment({'country': 'DE'})
++    assert q1 != q2
++    assert hash(q1) != hash(q2)
++    assert q1 == Query().billing.fragment({'country': 'DE'})
++
++
+ def test_fragment_with_path():
+     query = Query().doc.fragment({'a': 4, 'b': True})
+ 
+diff --git a/tinydb/queries.py b/tinydb/queries.py
+index e106c5d..841597c 100644
+--- a/tinydb/queries.py
++++ b/tinydb/queries.py
+@@ -494,9 +494,11 @@ class Query(QueryInstance):
+ 
+             return True
+ 
++        # The path must be part of the hash: otherwise ``Q.a.fragment(x)`` and
++        # ``Q.b.fragment(x)`` compare equal and share a query-cache entry.
+         return self._generate_test(
+             lambda value: test(value),
+-            ('fragment', freeze(document)),
++            ('fragment', self._path, freeze(document)),
+             allow_empty_path=True
+         )
+ 

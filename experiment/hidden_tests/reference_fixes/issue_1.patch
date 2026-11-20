@@ -1,0 +1,17 @@
+diff --git a/tinydb/queries.py b/tinydb/queries.py
+index e106c5d..832df91 100644
+--- a/tinydb/queries.py
++++ b/tinydb/queries.py
+@@ -494,9 +494,11 @@ class Query(QueryInstance):
+ 
+             return True
+ 
++        # Include the path in the hash so that fragment queries on different
++        # (nested) fields don't share a Table query-cache entry.
+         return self._generate_test(
+             lambda value: test(value),
+-            ('fragment', freeze(document)),
++            ('fragment', self._path, freeze(document)),
+             allow_empty_path=True
+         )
+ 
