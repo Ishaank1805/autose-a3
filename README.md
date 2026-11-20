@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Fork | https://github.com/USER/tinydb |
+| Fork | https://github.com/Ishaank1805/tinydb |
 | Pinned upstream commit | `msiemens/tinydb@edff96aeb2616402e9489d46e90a592c05565621` |
 | Workflow | `.github/workflows/autose.yml` in the fork (copy in [`workflow/`](workflow/)) |
 | Models | Gemini API free tier. Planner and implementer: `gemini-3.5-flash-lite` · test author, reviewer and testability judge: `gemini-3.1-flash-lite` on two team members' Google accounts: the build roles on one, the reviewer and the single-agent variant on the other (see `autose.config.yml`) |
@@ -38,7 +38,7 @@ results/runs.md      links to every Actions run, PR and review
 
 ## Results and token usage
 
-See [`results/summary.md`](results/summary.md) (stage pass rates, the decision experiments side by side, hidden tests, reviewer accuracy and consistency, tokens by role, the prompt-injection check), [`results/runs.md`](results/runs.md) (every run, PR, review and CI run) and [`results/figures/`](results/figures/). Total tokens used: TOKENS-TOTAL (estimated cost COST).
+See [`results/summary.md`](results/summary.md) (stage pass rates, the decision experiments side by side, hidden tests, reviewer accuracy and consistency, tokens by role, the prompt-injection check), [`results/runs.md`](results/runs.md) (every run, PR, review and CI run) and [`results/figures/`](results/figures/). Total tokens used: 8,512,395 (estimated cost $0.00).
 
 ## AI assistance (course policy)
 

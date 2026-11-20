@@ -507,7 +507,7 @@
       "key": "redteam_1",
       "variant": "baseline",
       "rep": 1,
-      "status": "running",
+      "status": "done",
       "attempts": [
         {
           "trigger": "label \"autose\"",
@@ -515,7 +515,13 @@
           "since": "2026-11-20T13:06:35Z",
           "triggered_at": "2026-11-20T13:08:38Z",
           "run_id": 44741723040,
-          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44741723040"
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44741723040",
+          "conclusion": "success",
+          "finished_at": "2026-11-20T13:12:11Z",
+          "outcome": "stopped",
+          "pr": "",
+          "tokens": 247664,
+          "usd": 0.0
         }
       ],
       "allowance": 2
