@@ -40,6 +40,10 @@ def grouped_bars(ax, labels, series: dict[str, list[float]]) -> None:
 
 def main(results: Path = RESULTS) -> int:
     rows = list(csv.DictReader(open(results / 'results.csv', encoding='utf-8')))
+    if len({r.get('campaign', '') for r in rows}) > 1:          # group by variant and campaign
+        rows = [dict(r, variant=f"{r['variant']} · {r['campaign']}") for r in rows]
+    if len({r.get('seeded_set') for r in rows if r.get('seeded_set')}) > 1:
+        rows = [dict(r, variant=f"{r['variant']} · {r['seeded_set']}") if r.get('seeded_set') else r for r in rows]
     out = results / 'figures'
     out.mkdir(exist_ok=True)
     made = []

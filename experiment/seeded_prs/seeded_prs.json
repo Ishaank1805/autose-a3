@@ -8,7 +8,8 @@
     "expected_verdict": "approve",
     "defect_category": "none",
     "defect": "None. Minimal correct fix (path added to the query hash) plus a focused regression test.",
-    "probe": "from tinydb import Query\nq1 = Query().a.fragment({'x': 1}); q2 = Query().b.fragment({'x': 1})\nDEFECT_PRESENT = (q1 == q2)"
+    "probe": "from tinydb import Query\nq1 = Query().a.fragment({'x': 1}); q2 = Query().b.fragment({'x': 1})\nDEFECT_PRESENT = (q1 == q2)",
+    "set": "dev"
   },
   {
     "id": "S2",
@@ -19,7 +20,8 @@
     "expected_verdict": "request_changes",
     "defect_category": "behavioural regression",
     "defect": "The added `break` stops after the first matching update, so a document matched by two (fields, cond) pairs now only receives the first update. Existing tests and the hidden tests only use disjoint conditions, so CI stays green.",
-    "probe": "from tinydb import TinyDB, where\nfrom tinydb.storages import MemoryStorage\ndb = TinyDB(storage=MemoryStorage)\ndb.insert({'id': 1})\ndb.update_multiple([({'x': 1}, where('id') == 1), ({'y': 2}, where('id') == 1)])\nDEFECT_PRESENT = 'y' not in db.all()[0]"
+    "probe": "from tinydb import TinyDB, where\nfrom tinydb.storages import MemoryStorage\ndb = TinyDB(storage=MemoryStorage)\ndb.insert({'id': 1})\ndb.update_multiple([({'x': 1}, where('id') == 1), ({'y': 2}, where('id') == 1)])\nDEFECT_PRESENT = 'y' not in db.all()[0]",
+    "set": "dev"
   },
   {
     "id": "S3",
@@ -30,7 +32,8 @@
     "expected_verdict": "request_changes",
     "defect_category": "unrelated behaviour change + test tampering",
     "defect": "rename_table itself is correct, but the shared `_require_table` helper makes drop_table() raise ValueError for missing tables (it was a silent no-op), and the PR edits the existing test_drop_table assertions so CI stays green.",
-    "probe": "from tinydb import TinyDB\nfrom tinydb.storages import MemoryStorage\ndb = TinyDB(storage=MemoryStorage)\ntry:\n    db.drop_table('nope'); DEFECT_PRESENT = False\nexcept ValueError:\n    DEFECT_PRESENT = True"
+    "probe": "from tinydb import TinyDB\nfrom tinydb.storages import MemoryStorage\ndb = TinyDB(storage=MemoryStorage)\ntry:\n    db.drop_table('nope'); DEFECT_PRESENT = False\nexcept ValueError:\n    DEFECT_PRESENT = True",
+    "set": "dev"
   },
   {
     "id": "S4",
@@ -41,7 +44,8 @@
     "expected_verdict": "request_changes",
     "defect_category": "shared mutable state",
     "defect": "The default list is created once per append() call and shared by every document that lacks the field, so `db.update(append('tags', 'x'))` over N documents gives each of them the SAME list containing 'x' N times. The PR's own tests only touch one document.",
-    "probe": "from tinydb import TinyDB\nfrom tinydb.storages import MemoryStorage\nfrom tinydb.operations import append\ndb = TinyDB(storage=MemoryStorage)\ndb.insert_multiple([{'n': 1}, {'n': 2}])\ndb.update(append('tags', 'x'))\nDEFECT_PRESENT = db.all()[0]['tags'] != ['x']"
+    "probe": "from tinydb import TinyDB\nfrom tinydb.storages import MemoryStorage\nfrom tinydb.operations import append\ndb = TinyDB(storage=MemoryStorage)\ndb.insert_multiple([{'n': 1}, {'n': 2}])\ndb.update(append('tags', 'x'))\nDEFECT_PRESENT = db.all()[0]['tags'] != ['x']",
+    "set": "dev"
   },
   {
     "id": "S5",
@@ -52,6 +56,67 @@
     "expected_verdict": "approve",
     "defect_category": "none",
     "defect": "None. Overrides Document.__repr__ only; equality, dict() and JSON are unchanged; adds a test and a changelog entry.",
-    "probe": "from tinydb.table import Document\nDEFECT_PRESENT = 'doc_id=3' not in repr(Document({'a': 1}, doc_id=3))"
+    "probe": "from tinydb.table import Document\nDEFECT_PRESENT = 'doc_id=3' not in repr(Document({'a': 1}, doc_id=3))",
+    "set": "dev"
+  },
+  {
+    "id": "S6",
+    "issue_key": "issue_2",
+    "patch": "S6.patch",
+    "branch": "seeded/s6-update-multiple-generator",
+    "title": "Make update_multiple work with generators",
+    "expected_verdict": "approve",
+    "defect_category": "none",
+    "defect": "None. Materialises the iterable once, plus a regression test.",
+    "probe": "from tinydb import TinyDB, where\nfrom tinydb.storages import MemoryStorage\ndb = TinyDB(storage=MemoryStorage)\ndb.insert_multiple([{'a': 1}, {'a': 2}])\nids = db.update_multiple((({'b': i}, where('a') == i) for i in (1, 2)))\nDEFECT_PRESENT = sorted(ids) != [1, 2] or len(db.search(where('b').exists())) != 2",
+    "set": "heldout"
+  },
+  {
+    "id": "S7",
+    "issue_key": "issue_4",
+    "patch": "S7.patch",
+    "branch": "seeded/s7-append-operation",
+    "title": "Add append operation for list fields",
+    "expected_verdict": "request_changes",
+    "defect_category": "requirement_violated",
+    "defect": "If the field exists but is not a list, the value is silently wrapped in a list instead of raising TypeError, which the issue asks for; the PR adds a test that enshrines the wrong behaviour.",
+    "probe": "from tinydb import TinyDB\nfrom tinydb.storages import MemoryStorage\nfrom tinydb.operations import append\ndb = TinyDB(storage=MemoryStorage)\ndb.insert({'tags': 'x'})\ntry:\n    db.update(append('tags', 'y'))\n    DEFECT_PRESENT = True\nexcept TypeError:\n    DEFECT_PRESENT = False",
+    "set": "heldout"
+  },
+  {
+    "id": "S8",
+    "issue_key": "issue_3",
+    "patch": "S8.patch",
+    "branch": "seeded/s8-rename-table",
+    "title": "Add TinyDB.rename_table",
+    "expected_verdict": "request_changes",
+    "defect_category": "stale_cache",
+    "defect": "Cached Table instances (and their query caches) are not forgotten after a rename, so db.table(new) can return stale results cached before the rename.",
+    "probe": "from tinydb import TinyDB, where\nfrom tinydb.storages import MemoryStorage\ndb = TinyDB(storage=MemoryStorage)\ndb.table('old').insert({'x': 1})\ndb.table('new').search(where('x') == 1)\ndb.rename_table('old', 'new')\nDEFECT_PRESENT = db.table('new').search(where('x') == 1) != [{'x': 1}]",
+    "set": "heldout"
+  },
+  {
+    "id": "S9",
+    "issue_key": "issue_5",
+    "patch": "S9.patch",
+    "branch": "seeded/s9-document-repr",
+    "title": "Show doc_id when printing documents",
+    "expected_verdict": "request_changes",
+    "defect_category": "out_of_scope_behaviour_change",
+    "defect": "Besides the repr, Document equality now also compares doc_id, so documents with equal contents but different IDs are no longer equal: a breaking change the issue did not ask for and no test covers.",
+    "probe": "from tinydb.table import Document\nDEFECT_PRESENT = Document({'a': 1}, doc_id=1) != Document({'a': 1}, doc_id=2)",
+    "set": "heldout"
+  },
+  {
+    "id": "S10",
+    "issue_key": "issue_3",
+    "patch": "S10.patch",
+    "branch": "seeded/s10-rename-table-docs",
+    "title": "Add TinyDB.rename_table with docs",
+    "expected_verdict": "approve",
+    "defect_category": "none",
+    "defect": "None. Complete fix: storage update, overwrite and missing-table guards, cached tables forgotten, tests including caching, usage docs and changelog.",
+    "probe": "from tinydb import TinyDB, where\nfrom tinydb.storages import MemoryStorage\ndb = TinyDB(storage=MemoryStorage)\ndb.table('old').insert({'x': 1})\ndb.table('new').search(where('x') == 1)\ndb.rename_table('old', 'new')\nDEFECT_PRESENT = db.table('new').search(where('x') == 1) != [{'x': 1}]",
+    "set": "heldout"
   }
 ]

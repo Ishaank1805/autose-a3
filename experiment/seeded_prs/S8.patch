@@ -1,0 +1,73 @@
+diff --git a/docs/changelog.rst b/docs/changelog.rst
+index 92c07e1..17fd475 100644
+--- a/docs/changelog.rst
++++ b/docs/changelog.rst
+@@ -19,6 +19,11 @@ see `semver.org <http://semver.org/>`_
+           syntax (``Query()['some']['nested']['field']``) that will
+           not break even when new methods are added to the ``Query`` API.
+ 
++unreleased
++^^^^^^^^^^
++
++- Feature: ``TinyDB.rename_table(old, new)`` renames a table and keeps its documents.
++
+ v4.9.0 (2026-08-06)
+ ^^^^^^^^^^^^^^^^^^^
+ 
+diff --git a/tests/test_tinydb.py b/tests/test_tinydb.py
+index 9ff866f..8210753 100644
+--- a/tests/test_tinydb.py
++++ b/tests/test_tinydb.py
+@@ -837,3 +837,21 @@ def test_lambda_query():
+     query.is_cacheable = lambda: False
+     assert db.search(query) == [{'foo': 'bar'}]
+     assert not db._query_cache
++
++
++def test_rename_table_keeps_documents(db):
++    db.table('old').insert({'x': 1})
++    db.rename_table('old', 'new')
++    assert 'old' not in db.tables() and db.table('new').all() == [{'x': 1}]
++
++
++def test_rename_table_refuses_to_overwrite(db):
++    db.table('a').insert({'x': 1})
++    db.table('b').insert({'x': 2})
++    with pytest.raises(ValueError):
++        db.rename_table('a', 'b')
++
++
++def test_rename_missing_table_raises(db):
++    with pytest.raises(ValueError):
++        db.rename_table('nope', 'other')
+diff --git a/tinydb/database.py b/tinydb/database.py
+index 0cd2b7e..3324721 100644
+--- a/tinydb/database.py
++++ b/tinydb/database.py
+@@ -201,6 +201,26 @@ class TinyDB(TableBase):
+         # Store the updated data back to the storage
+         self.storage.write(data)
+ 
++    def rename_table(self, old_name: str, new_name: str) -> None:
++        """
++        Rename a table, keeping all of its documents.
++
++        :param old_name: The current name of the table.
++        :param new_name: The new name of the table.
++        :raises ValueError: if ``old_name`` does not exist or if a table
++                            called ``new_name`` already exists.
++        """
++        data = self.storage.read() or {}
++
++        if old_name not in data:
++            raise ValueError(f'Table {old_name!r} does not exist')
++
++        if new_name in data:
++            raise ValueError(f'Table {new_name!r} already exists')
++
++        data[new_name] = data.pop(old_name)
++        self.storage.write(data)
++
+     @property
+     def storage(self) -> Storage:
+         """

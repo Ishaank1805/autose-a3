@@ -1,0 +1,63 @@
+diff --git a/docs/changelog.rst b/docs/changelog.rst
+index 92c07e1..d504514 100644
+--- a/docs/changelog.rst
++++ b/docs/changelog.rst
+@@ -19,6 +19,13 @@ see `semver.org <http://semver.org/>`_
+           syntax (``Query()['some']['nested']['field']``) that will
+           not break even when new methods are added to the ``Query`` API.
+ 
++unreleased
++^^^^^^^^^^
++
++- Improvement: ``Document`` objects now show their ``doc_id`` when printed,
++  e.g. ``Document({'name': 'John'}, doc_id=1)``. Equality with plain dicts
++  and JSON serialization are unchanged.
++
+ v4.9.0 (2026-08-06)
+ ^^^^^^^^^^^^^^^^^^^
+ 
+diff --git a/tests/test_tables.py b/tests/test_tables.py
+index a94005e..e8ed2f4 100644
+--- a/tests/test_tables.py
++++ b/tests/test_tables.py
+@@ -197,3 +197,9 @@ def test_persist_empty_does_not_wipe_existing_data(tmpdir):
+     assert len(table) == 1
+     assert table.all() == [{'a': 1}]
+     db.close()
++
++
++def test_document_repr_shows_doc_id(db):
++    doc = db.table('_default').get(doc_id=1)
++    assert repr(doc) == "Document({'int': 1, 'char': 'a'}, doc_id=1)"
++    assert doc == {'int': 1, 'char': 'a'}
+diff --git a/tinydb/table.py b/tinydb/table.py
+index 76470aa..ef6403d 100644
+--- a/tinydb/table.py
++++ b/tinydb/table.py
+@@ -31,6 +31,26 @@ class Document(dict):
+         super().__init__(value)
+         self.doc_id = doc_id
+ 
++    def __repr__(self):
++        # Include the ID so printed results can be told apart:
++        # ``Document({'name': 'John'}, doc_id=1)``. Equality, ``dict(doc)``
++        # and JSON serialization are unaffected.
++        return '{}({}, doc_id={!r})'.format(
++            type(self).__name__, dict.__repr__(self), self.doc_id
++        )
++
++    def __eq__(self, other):
++        # Two documents are the same record only if their IDs match too.
++        if isinstance(other, Document):
++            return self.doc_id == other.doc_id and dict.__eq__(self, other)
++        return dict.__eq__(self, other)
++
++    def __ne__(self, other):
++        result = self.__eq__(other)
++        return result if result is NotImplemented else not result
++
++    __hash__ = None
++
+ 
+ class Table:
+     """
