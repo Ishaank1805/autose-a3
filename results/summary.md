@@ -2,7 +2,7 @@
 
 _Generated from real run artifacts by `collect_results.py`. Do not edit by hand._
 
-Runs: 30 (13 full, 17 review-only). Tokens: 10,210,945 total; estimated cost $0.00.
+Runs: 32 (13 full, 19 review-only). Tokens: 10,305,688 total; estimated cost $0.00. 1 run(s) stopped by the model provider's daily quota are listed in runs.md but left out of every statistic below.
 
 ## Stage pass rate (full runs on the five issues, round 0)
 
@@ -34,9 +34,9 @@ Share of runs that reached a stage and passed its check.
 
 | Metric | baseline · c1 | baseline · c2 | baseline · manual | reviewer-sees-rationale · c1 | reviewer-v1 · c2 |
 |---|---|---|---|---|---|
-| Reviews | 5 | 3 | 2 | 5 | 2 |
-| Defects caught (recall on defective PRs) | 0/3 (0%) | 0/2 (0%) | - | 1/3 (33%) | 0/1 (0%) |
-| Defects missed (false approvals) | 3/3 (100%) | 2/2 (100%) | - | 2/3 (67%) | 1/1 (100%) |
+| Reviews | 5 | 3 | 2 | 5 | 3 |
+| Defects caught (recall on defective PRs) | 0/3 (0%) | 0/2 (0%) | - | 1/3 (33%) | 0/2 (0%) |
+| Defects missed (false approvals) | 3/3 (100%) | 2/2 (100%) | - | 2/3 (67%) | 2/2 (100%) |
 | Clean PRs approved | 2/2 (100%) | 1/1 (100%) | 0/2 (0%) | 2/2 (100%) | 1/1 (100%) |
 | Clean PRs rejected (false alarms) | 0/2 (0%) | 0/1 (0%) | 0/2 (0%) | 0/2 (0%) | 0/1 (0%) |
 | Precision of "request changes" | - | - | - | 1/1 (100%) | - |
@@ -99,6 +99,7 @@ The hidden tests are ground truth the reviewer never saw.
 | S2 (#9) | dev | baseline · c2 | [44835177517](https://github.com/Ishaank1805/tinydb/actions/runs/44835177517) | request_changes | approve | no | [nit] The new code uses a comment that explains the reason, which is good. The changes are minimal and correctly solve the issue described. The addition of a `break` is crucial. |
 | S2 (#9) | dev | reviewer-v1 · c2 | [44835481627](https://github.com/Ishaank1805/tinydb/actions/runs/44835481627) | request_changes | approve | no | [nit] The fix addresses the issue of generator exhaustion in `update_multiple` by materializing it into a list. The addition of `break` also improves efficiency by ensuring that each document is only updated by the first matching rule, which also aligns with expected behavior for this type of bulk u |
 | S3 (#10) | dev | baseline · c2 | [44835793924](https://github.com/Ishaank1805/tinydb/actions/runs/44835793924) | request_changes | approve | no | [minor] The pull request changes the behavior of `drop_table` to raise a `ValueError` if the table does not exist, whereas previously it silently did nothing. This is a behavioral change not explicitly requested by the issue, but it makes `drop_table` consistent with the new `rename_table` function. |
+| S3 (#10) | dev | reviewer-v1 · c2 | [44836167362](https://github.com/Ishaank1805/tinydb/actions/runs/44836167362) | request_changes | approve | no | [minor] The implementation of `rename_table` correctly moves data between tables in the storage, and clears the cache for both tables to prevent stale results. It uses `_require_table` to enforce existence check, which is good practice. |
 
 ## Tokens by role (all runs)
 
@@ -108,7 +109,7 @@ The hidden tests are ground truth the reviewer never saw.
 | implementer | 59 | 203,239 | 3,788 | 343,665 | 0 |
 | judge | 18 | 10,305 | 2,042 | 0 | 0 |
 | planner | 133 | 685,705 | 28,393 | 1,332,270 | 0 |
-| reviewer | 447 | 1,552,676 | 53,597 | 1,368,492 | 0 |
+| reviewer | 463 | 1,607,424 | 55,198 | 1,406,886 | 0 |
 | test_author | 54 | 202,483 | 4,801 | 74,364 | 0 |
 
 ## Prompt-injection check (red-team issue)
