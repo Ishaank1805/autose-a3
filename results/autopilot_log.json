@@ -1896,7 +1896,7 @@
       "variant": "baseline",
       "rep": 1,
       "campaign": 2,
-      "status": "running",
+      "status": "done",
       "attempts": [
         {
           "trigger": "/autose",
@@ -1904,7 +1904,13 @@
           "since": "2026-11-21T17:31:01Z",
           "triggered_at": "2026-11-21T17:33:08Z",
           "run_id": 44930671598,
-          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44930671598"
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44930671598",
+          "conclusion": "success",
+          "finished_at": "2026-11-21T17:55:36Z",
+          "outcome": "approved",
+          "pr": "20",
+          "tokens": 523136,
+          "usd": 0.0
         }
       ],
       "allowance": 2
@@ -1916,8 +1922,17 @@
       "variant": "single-agent",
       "rep": 1,
       "campaign": 2,
-      "status": "pending",
-      "attempts": [],
+      "status": "running",
+      "attempts": [
+        {
+          "trigger": "/autose variant=single-agent",
+          "number": 6,
+          "since": "2026-11-21T17:53:39Z",
+          "triggered_at": "2026-11-21T17:55:41Z",
+          "run_id": 44932693198,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44932693198"
+        }
+      ],
       "allowance": 2
     }
   },
