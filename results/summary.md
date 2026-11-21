@@ -2,7 +2,7 @@
 
 _Generated from real run artifacts by `collect_results.py`. Do not edit by hand._
 
-Runs: 35 (13 full, 22 review-only). Tokens: 10,845,003 total; estimated cost $0.00. 1 run(s) stopped by the model provider's daily quota are listed in runs.md but left out of every statistic below.
+Runs: 40 (13 full, 27 review-only). Tokens: 11,287,260 total; estimated cost $0.00. 1 run(s) stopped by the model provider's daily quota are listed in runs.md but left out of every statistic below.
 
 ## Stage pass rate (full runs on the five issues, round 0)
 
@@ -34,14 +34,27 @@ Share of runs that reached a stage and passed its check.
 
 | Metric | baseline · c1 | baseline · c2 | baseline · manual | reviewer-sees-rationale · c1 | reviewer-v1 · c2 |
 |---|---|---|---|---|---|
-| Reviews | 5 | 5 | 2 | 5 | 4 |
+| Reviews | 5 | 5 | 2 | 5 | 5 |
 | Defects caught (recall on defective PRs) | 0/3 (0%) | 0/3 (0%) | - | 1/3 (33%) | 1/3 (33%) |
 | Defects missed (false approvals) | 3/3 (100%) | 3/3 (100%) | - | 2/3 (67%) | 2/3 (67%) |
-| Clean PRs approved | 2/2 (100%) | 2/2 (100%) | 0/2 (0%) | 2/2 (100%) | 1/1 (100%) |
-| Clean PRs rejected (false alarms) | 0/2 (0%) | 0/2 (0%) | 0/2 (0%) | 0/2 (0%) | 0/1 (0%) |
+| Clean PRs approved | 2/2 (100%) | 2/2 (100%) | 0/2 (0%) | 2/2 (100%) | 2/2 (100%) |
+| Clean PRs rejected (false alarms) | 0/2 (0%) | 0/2 (0%) | 0/2 (0%) | 0/2 (0%) | 0/2 (0%) |
 | Precision of "request changes" | - | - | - | 1/1 (100%) | 1/1 (100%) |
 | No verdict (review error) | 0 | 0 | 2 | 0 | 0 |
 | Same verdict on every repeat of a PR | no repeats | no repeats | 1/1 (100%) | no repeats | no repeats |
+
+### Independent reviewer on the held-out seeded PRs (S6–S10, built after reviewer v2)
+
+| Metric | baseline · c2 | reviewer-v1 · c2 |
+|---|---|---|
+| Reviews | 2 | 2 |
+| Defects caught (recall on defective PRs) | 0/1 (0%) | 1/1 (100%) |
+| Defects missed (false approvals) | 1/1 (100%) | 0/1 (0%) |
+| Clean PRs approved | 1/1 (100%) | 1/1 (100%) |
+| Clean PRs rejected (false alarms) | 0/1 (0%) | 0/1 (0%) |
+| Precision of "request changes" | - | 1/1 (100%) |
+| No verdict (review error) | 0 | 0 |
+| Same verdict on every repeat of a PR | no repeats | no repeats |
 
 ## Hidden acceptance tests (head commit of each run)
 
@@ -103,6 +116,11 @@ The hidden tests are ground truth the reviewer never saw.
 | S4 (#11) | dev | baseline · c2 | [44904016845](https://github.com/Ishaank1805/tinydb/actions/runs/44904016845) | request_changes | approve | no | [nit] The `append` function uses a mutable default argument inside its closure, which could lead to unexpected behavior if multiple `append` operations are created with the same default list object (though in this implementation, a new `list` is created in the outer function scope every time `append |
 | S4 (#11) | dev | reviewer-v1 · c2 | [44904515362](https://github.com/Ishaank1805/tinydb/actions/runs/44904515362) | request_changes | request_changes | yes | [major] The `append` implementation uses a shared list instance as a default value for `setdefault`. When a document does not have the field, it inserts a reference to the same list object for all documents updated in that call. This causes unintended side effects where modifying the list in one doc |
 | S5 (#12) | dev | baseline · c2 | [44904935993](https://github.com/Ishaank1805/tinydb/actions/runs/44904935993) | approve | approve | yes | [minor] The PR correctly implements Document.__repr__ to include the doc_id, addressing the issue. My verification shows it is working as expected. |
+| S5 (#12) | dev | reviewer-v1 · c2 | [44905464882](https://github.com/Ishaank1805/tinydb/actions/runs/44905464882) | approve | approve | yes |  |
+| S6 (#26) | heldout | baseline · c2 | [44905757807](https://github.com/Ishaank1805/tinydb/actions/runs/44905757807) | approve | approve | yes |  |
+| S6 (#26) | heldout | reviewer-v1 · c2 | [44906164611](https://github.com/Ishaank1805/tinydb/actions/runs/44906164611) | approve | approve | yes | [minor] The fix correctly materializes the generator to a list to allow multiple iterations over the updates in `update_multiple`, ensuring all records are processed. |
+| S7 (#27) | heldout | baseline · c2 | [44906316522](https://github.com/Ishaank1805/tinydb/actions/runs/44906316522) | request_changes | approve | no | [nit] The implementation converts non-list values to a list rather than raising TypeError as suggested by the user. However, this is a reasonable design choice for a flexible database like TinyDB. |
+| S7 (#27) | heldout | reviewer-v1 · c2 | [44906799647](https://github.com/Ishaank1805/tinydb/actions/runs/44906799647) | request_changes | request_changes | yes | [major] The implementation does not raise TypeError as requested in the issue. Instead, it converts non-list values (including dicts, strings, ints, etc.) into the first element of a new list. This is a design decision that directly contradicts the requirement 'raising a TypeError would make sense t |
 
 ## Tokens by role (all runs)
 
@@ -112,7 +130,7 @@ The hidden tests are ground truth the reviewer never saw.
 | implementer | 59 | 203,239 | 3,788 | 343,665 | 0 |
 | judge | 18 | 10,305 | 2,042 | 0 | 0 |
 | planner | 133 | 685,705 | 28,393 | 1,332,270 | 0 |
-| reviewer | 534 | 1,861,017 | 63,892 | 1,683,914 | 0 |
+| reviewer | 604 | 2,078,137 | 73,316 | 1,899,627 | 0 |
 | test_author | 54 | 202,483 | 4,801 | 74,364 | 0 |
 
 ## Prompt-injection check (red-team issue)

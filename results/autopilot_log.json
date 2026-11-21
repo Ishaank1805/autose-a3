@@ -789,7 +789,7 @@
       "variant": "reviewer-v1",
       "rep": 1,
       "campaign": 2,
-      "status": "running",
+      "status": "done",
       "attempts": [
         {
           "trigger": "/autose review #6 variant=reviewer-v1",
@@ -797,7 +797,13 @@
           "since": "2026-11-21T12:43:14Z",
           "triggered_at": "2026-11-21T12:45:16Z",
           "run_id": 44905464882,
-          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44905464882"
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44905464882",
+          "conclusion": "success",
+          "finished_at": "2026-11-21T12:48:46Z",
+          "outcome": "approved",
+          "pr": "12",
+          "tokens": 19580,
+          "usd": 0.0
         }
       ],
       "allowance": 2
@@ -809,8 +815,23 @@
       "variant": "baseline",
       "rep": 1,
       "campaign": 2,
-      "status": "pending",
-      "attempts": [],
+      "status": "done",
+      "attempts": [
+        {
+          "trigger": "/autose review #3",
+          "number": 26,
+          "since": "2026-11-21T12:46:49Z",
+          "triggered_at": "2026-11-21T12:48:50Z",
+          "run_id": 44905757807,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44905757807",
+          "conclusion": "success",
+          "finished_at": "2026-11-21T12:53:51Z",
+          "outcome": "approved",
+          "pr": "26",
+          "tokens": 60637,
+          "usd": 0.0
+        }
+      ],
       "allowance": 2
     },
     "c2:review:S6:reviewer-v1:1": {
@@ -820,8 +841,23 @@
       "variant": "reviewer-v1",
       "rep": 1,
       "campaign": 2,
-      "status": "pending",
-      "attempts": [],
+      "status": "done",
+      "attempts": [
+        {
+          "trigger": "/autose review #3 variant=reviewer-v1",
+          "number": 26,
+          "since": "2026-11-21T12:51:54Z",
+          "triggered_at": "2026-11-21T12:53:55Z",
+          "run_id": 44906164611,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44906164611",
+          "conclusion": "success",
+          "finished_at": "2026-11-21T12:55:48Z",
+          "outcome": "approved",
+          "pr": "26",
+          "tokens": 24775,
+          "usd": 0.0
+        }
+      ],
       "allowance": 2
     },
     "c2:review:S7:baseline:1": {
@@ -831,8 +867,23 @@
       "variant": "baseline",
       "rep": 1,
       "campaign": 2,
-      "status": "pending",
-      "attempts": [],
+      "status": "done",
+      "attempts": [
+        {
+          "trigger": "/autose review #5",
+          "number": 27,
+          "since": "2026-11-21T12:53:51Z",
+          "triggered_at": "2026-11-21T12:55:53Z",
+          "run_id": 44906316522,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44906316522",
+          "conclusion": "success",
+          "finished_at": "2026-11-21T13:01:39Z",
+          "outcome": "approved",
+          "pr": "27",
+          "tokens": 280933,
+          "usd": 0.0
+        }
+      ],
       "allowance": 2
     },
     "c2:review:S7:reviewer-v1:1": {
@@ -842,8 +893,23 @@
       "variant": "reviewer-v1",
       "rep": 1,
       "campaign": 2,
-      "status": "pending",
-      "attempts": [],
+      "status": "done",
+      "attempts": [
+        {
+          "trigger": "/autose review #5 variant=reviewer-v1",
+          "number": 27,
+          "since": "2026-11-21T12:59:48Z",
+          "triggered_at": "2026-11-21T13:01:49Z",
+          "run_id": 44906799647,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44906799647",
+          "conclusion": "success",
+          "finished_at": "2026-11-21T13:04:53Z",
+          "outcome": "changes_requested",
+          "pr": "27",
+          "tokens": 56332,
+          "usd": 0.0
+        }
+      ],
       "allowance": 2
     },
     "c2:review:S8:baseline:1": {
@@ -853,8 +919,17 @@
       "variant": "baseline",
       "rep": 1,
       "campaign": 2,
-      "status": "pending",
-      "attempts": [],
+      "status": "running",
+      "attempts": [
+        {
+          "trigger": "/autose review #4",
+          "number": 28,
+          "since": "2026-11-21T13:02:56Z",
+          "triggered_at": "2026-11-21T13:04:57Z",
+          "run_id": 44907064980,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44907064980"
+        }
+      ],
       "allowance": 2
     },
     "c2:review:S8:reviewer-v1:1": {
