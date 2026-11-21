@@ -1777,7 +1777,7 @@
       "variant": "baseline",
       "rep": 1,
       "campaign": 2,
-      "status": "running",
+      "status": "pending",
       "attempts": [
         {
           "trigger": "/autose",
@@ -1785,10 +1785,17 @@
           "since": "2026-11-21T15:33:06Z",
           "triggered_at": "2026-11-21T15:35:08Z",
           "run_id": 44919969207,
-          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44919969207"
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44919969207",
+          "conclusion": "success",
+          "finished_at": "2026-11-21T15:46:51Z",
+          "outcome": "review_error",
+          "pr": "34",
+          "tokens": 460176,
+          "usd": 0.0,
+          "note": "stopped by the provider's daily quota; re-run after the reset"
         }
       ],
-      "allowance": 2
+      "allowance": 3
     },
     "c2:full:issue_3:single-agent:1": {
       "id": "c2:full:issue_3:single-agent:1",
