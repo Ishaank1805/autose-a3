@@ -1673,7 +1673,7 @@
       "variant": "baseline",
       "rep": 1,
       "campaign": 2,
-      "status": "running",
+      "status": "done",
       "attempts": [
         {
           "trigger": "/autose",
@@ -1681,7 +1681,13 @@
           "since": "2026-11-21T14:54:01Z",
           "triggered_at": "2026-11-21T14:56:03Z",
           "run_id": 44916482898,
-          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44916482898"
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44916482898",
+          "conclusion": "success",
+          "finished_at": "2026-11-21T15:08:50Z",
+          "outcome": "approved",
+          "pr": "13",
+          "tokens": 584111,
+          "usd": 0.0
         }
       ],
       "allowance": 2
@@ -1693,8 +1699,23 @@
       "variant": "single-agent",
       "rep": 1,
       "campaign": 2,
-      "status": "pending",
-      "attempts": [],
+      "status": "done",
+      "attempts": [
+        {
+          "trigger": "/autose variant=single-agent",
+          "number": 2,
+          "since": "2026-11-21T15:06:57Z",
+          "triggered_at": "2026-11-21T15:08:59Z",
+          "run_id": 44917631285,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44917631285",
+          "conclusion": "success",
+          "finished_at": "2026-11-21T15:17:26Z",
+          "outcome": "approved",
+          "pr": "14",
+          "tokens": 883770,
+          "usd": 0.0
+        }
+      ],
       "allowance": 2
     },
     "c2:full:issue_2:baseline:1": {
@@ -1704,8 +1725,17 @@
       "variant": "baseline",
       "rep": 1,
       "campaign": 2,
-      "status": "pending",
-      "attempts": [],
+      "status": "running",
+      "attempts": [
+        {
+          "trigger": "/autose",
+          "number": 3,
+          "since": "2026-11-21T15:15:28Z",
+          "triggered_at": "2026-11-21T15:17:30Z",
+          "run_id": 44918386692,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44918386692"
+        }
+      ],
       "allowance": 2
     },
     "c2:full:issue_2:single-agent:1": {

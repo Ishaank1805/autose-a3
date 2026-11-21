@@ -2,7 +2,7 @@
 
 _Generated from real run artifacts by `collect_results.py`. Do not edit by hand._
 
-Runs: 69 (16 full, 53 review-only). Tokens: 14,683,869 total; estimated cost $0.00. 1 run(s) stopped by the model provider's daily quota are listed in runs.md but left out of every statistic below.
+Runs: 71 (18 full, 53 review-only). Tokens: 16,151,750 total; estimated cost $0.00. 1 run(s) stopped by the model provider's daily quota are listed in runs.md but left out of every statistic below.
 
 ## Stage pass rate (full runs on the five issues, round 0)
 
@@ -11,24 +11,26 @@ Share of runs that reached a stage and passed its check.
 | Variant | Runs | requirements | design | implementation | testing | release | review: approve |
 |---|---|---|---|---|---|---|---|
 | baseline · c1 | 5 | 4/5 (80%) | 4/4 (100%) | 4/4 (100%) | 4/4 (100%) | 4/4 (100%) | 4/4 (100%) |
+| baseline · c2 | 1 | 1/1 (100%) | 1/1 (100%) | 1/1 (100%) | 1/1 (100%) | 1/1 (100%) | 1/1 (100%) |
 | single-agent · c1 | 5 | 5/5 (100%) | 5/5 (100%) | 5/5 (100%) | 5/5 (100%) | 5/5 (100%) | 4/5 (80%) |
+| single-agent · c2 | 1 | 1/1 (100%) | 1/1 (100%) | 1/1 (100%) | 1/1 (100%) | 1/1 (100%) | 1/1 (100%) |
 
 ## Decision experiments, side by side
 
 ### Full runs on the five issues
 
-| Metric | baseline · c1 | single-agent · c1 |
-|---|---|---|
-| Runs | 5 | 5 |
-| PR opened and CI green (release passed) | 4/5 (80%) | 5/5 (100%) |
-| Stopped before release | 1/5 (20%) | 0/5 (0%) |
-| Final review verdict: approve | 4/5 (80%) | 4/5 (80%) |
-| Mean review rounds | 0.80 | 1.00 |
-| Hidden tests passed (no PR counts as all failed) | 16/20 (80%) | 20/20 (100%) |
-| Runs passing every hidden test | 4/5 (80%) | 5/5 (100%) |
-| Mean failed stage checks per run | 2.20 | 2.60 |
-| Mean tokens per run | 456,700 | 1,001,233 |
-| Mean estimated cost per run (USD) | 0.00 | 0.00 |
+| Metric | baseline · c1 | baseline · c2 | single-agent · c1 | single-agent · c2 |
+|---|---|---|---|---|
+| Runs | 5 | 1 | 5 | 1 |
+| PR opened and CI green (release passed) | 4/5 (80%) | 1/1 (100%) | 5/5 (100%) | 1/1 (100%) |
+| Stopped before release | 1/5 (20%) | 0/1 (0%) | 0/5 (0%) | 0/1 (0%) |
+| Final review verdict: approve | 4/5 (80%) | 1/1 (100%) | 4/5 (80%) | 1/1 (100%) |
+| Mean review rounds | 0.80 | 1.00 | 1.00 | 1.00 |
+| Hidden tests passed (no PR counts as all failed) | 16/20 (80%) | 4/4 (100%) | 20/20 (100%) | 4/4 (100%) |
+| Runs passing every hidden test | 4/5 (80%) | 1/1 (100%) | 5/5 (100%) | 1/1 (100%) |
+| Mean failed stage checks per run | 2.20 | 3.00 | 2.60 | 2.00 |
+| Mean tokens per run | 456,700 | 584,111 | 1,001,233 | 883,770 |
+| Mean estimated cost per run (USD) | 0.00 | 0.00 | 0.00 | 0.00 |
 
 ### Independent reviewer on the dev seeded PRs (S1–S5)
 
@@ -70,6 +72,8 @@ Share of runs that reached a stage and passed its check.
 | issue_4 | single-agent · c1 | [44736456570](https://github.com/Ishaank1805/tinydb/actions/runs/44736456570) | 4/4 |  |
 | issue_5 | baseline · c1 | [44737640143](https://github.com/Ishaank1805/tinydb/actions/runs/44737640143) | 4/4 |  |
 | issue_5 | single-agent · c1 | [44738785680](https://github.com/Ishaank1805/tinydb/actions/runs/44738785680) | 4/4 |  |
+| issue_1 | baseline · c2 | [44916482898](https://github.com/Ishaank1805/tinydb/actions/runs/44916482898) | 4/4 |  |
+| issue_1 | single-agent · c2 | [44917631285](https://github.com/Ishaank1805/tinydb/actions/runs/44917631285) | 4/4 |  |
 
 ## Runs that stopped, and why
 
@@ -90,7 +94,7 @@ The hidden tests are ground truth the reviewer never saw.
 
 | Final verdict | All hidden tests pass | Some hidden test fails |
 |---|---|---|
-| approve | 8 (agreed) | 0 (missed a defect) |
+| approve | 10 (agreed) | 0 (missed a defect) |
 | request changes | 0 (stricter than the tests) | 0 (agreed) |
 
 ## Reviewer on the seeded PRs, every review
@@ -154,12 +158,12 @@ The hidden tests are ground truth the reviewer never saw.
 
 | Role | Model calls | Uncached input | Output | Cache read | Cache write |
 |---|---|---|---|---|---|
-| generalist | 127 | 504,368 | 29,669 | 3,811,088 | 0 |
-| implementer | 68 | 236,568 | 4,242 | 343,665 | 0 |
-| judge | 21 | 11,511 | 2,296 | 0 | 0 |
-| planner | 188 | 897,694 | 38,613 | 1,872,969 | 0 |
-| reviewer | 984 | 3,496,262 | 121,973 | 2,992,758 | 0 |
-| test_author | 65 | 234,561 | 5,287 | 80,345 | 0 |
+| generalist | 151 | 596,006 | 33,300 | 4,555,759 | 0 |
+| implementer | 78 | 278,054 | 4,585 | 377,997 | 0 |
+| judge | 23 | 12,557 | 2,491 | 0 | 0 |
+| planner | 209 | 983,569 | 42,145 | 2,112,925 | 0 |
+| reviewer | 1,017 | 3,611,743 | 125,597 | 3,066,320 | 0 |
+| test_author | 70 | 250,324 | 5,894 | 92,484 | 0 |
 
 ## Prompt-injection check (red-team issue)
 
