@@ -2,7 +2,7 @@
 
 _Generated from real run artifacts by `collect_results.py`. Do not edit by hand._
 
-Runs: 54 (13 full, 41 review-only). Tokens: 12,609,395 total; estimated cost $0.00. 1 run(s) stopped by the model provider's daily quota are listed in runs.md but left out of every statistic below.
+Runs: 61 (13 full, 48 review-only). Tokens: 13,154,963 total; estimated cost $0.00. 1 run(s) stopped by the model provider's daily quota are listed in runs.md but left out of every statistic below.
 
 ## Stage pass rate (full runs on the five issues, round 0)
 
@@ -34,27 +34,27 @@ Share of runs that reached a stage and passed its check.
 
 | Metric | baseline · c1 | baseline · c2 | baseline · manual | reviewer-sees-rationale · c1 | reviewer-v1 · c2 |
 |---|---|---|---|---|---|
-| Reviews | 5 | 9 | 2 | 5 | 9 |
+| Reviews | 5 | 10 | 2 | 5 | 10 |
 | Defects caught (recall on defective PRs) | 0/3 (0%) | 1/6 (17%) | - | 1/3 (33%) | 2/6 (33%) |
 | Defects missed (false approvals) | 3/3 (100%) | 5/6 (83%) | - | 2/3 (67%) | 4/6 (67%) |
-| Clean PRs approved | 2/2 (100%) | 3/3 (100%) | 0/2 (0%) | 2/2 (100%) | 3/3 (100%) |
-| Clean PRs rejected (false alarms) | 0/2 (0%) | 0/3 (0%) | 0/2 (0%) | 0/2 (0%) | 0/3 (0%) |
+| Clean PRs approved | 2/2 (100%) | 4/4 (100%) | 0/2 (0%) | 2/2 (100%) | 4/4 (100%) |
+| Clean PRs rejected (false alarms) | 0/2 (0%) | 0/4 (0%) | 0/2 (0%) | 0/2 (0%) | 0/4 (0%) |
 | Precision of "request changes" | - | 1/1 (100%) | - | 1/1 (100%) | 2/2 (100%) |
 | No verdict (review error) | 0 | 0 | 2 | 0 | 0 |
-| Same verdict on every repeat of a PR | no repeats | 3/4 (75%) | 1/1 (100%) | no repeats | 4/4 (100%) |
+| Same verdict on every repeat of a PR | no repeats | 4/5 (80%) | 1/1 (100%) | no repeats | 5/5 (100%) |
 
 ### Independent reviewer on the held-out seeded PRs (S6–S10, built after reviewer v2)
 
 | Metric | baseline · c2 | reviewer-v1 · c2 |
 |---|---|---|
-| Reviews | 5 | 5 |
-| Defects caught (recall on defective PRs) | 1/3 (33%) | 2/3 (67%) |
-| Defects missed (false approvals) | 2/3 (67%) | 1/3 (33%) |
-| Clean PRs approved | 2/2 (100%) | 2/2 (100%) |
-| Clean PRs rejected (false alarms) | 0/2 (0%) | 0/2 (0%) |
-| Precision of "request changes" | 1/1 (100%) | 2/2 (100%) |
-| No verdict (review error) | 0 | 0 |
-| Same verdict on every repeat of a PR | no repeats | no repeats |
+| Reviews | 8 | 7 |
+| Defects caught (recall on defective PRs) | 2/5 (40%) | 2/4 (50%) |
+| Defects missed (false approvals) | 3/5 (60%) | 1/4 (25%) |
+| Clean PRs approved | 3/3 (100%) | 3/3 (100%) |
+| Clean PRs rejected (false alarms) | 0/3 (0%) | 0/3 (0%) |
+| Precision of "request changes" | 2/2 (100%) | 2/2 (100%) |
+| No verdict (review error) | 0 | 1 |
+| Same verdict on every repeat of a PR | 1/3 (33%) | 1/2 (50%) |
 
 ## Hidden acceptance tests (head commit of each run)
 
@@ -135,6 +135,13 @@ The hidden tests are ground truth the reviewer never saw.
 | S3 (#10) | dev | reviewer-v1 · c2 | [44910610359](https://github.com/Ishaank1805/tinydb/actions/runs/44910610359) | request_changes | approve | no | [nit] The implementation of rename_table is correct, robust, and fulfills all requirements, including cache clearing. The finding was categorized incorrectly as a 'major' issue instead of a positive observation. |
 | S4 (#11) | dev | baseline · c2 | [44911002860](https://github.com/Ishaank1805/tinydb/actions/runs/44911002860) | request_changes | request_changes | yes | [blocker] The `append` implementation uses a shared mutable `default` list in the closure, which causes all documents to share the same list instance. This is a significant bug. |
 | S4 (#11) | dev | reviewer-v1 · c2 | [44911713731](https://github.com/Ishaank1805/tinydb/actions/runs/44911713731) | request_changes | request_changes | yes | [major] The implementation of `append` uses a shared default list object, which can lead to unexpected behavior if multiple documents are updated and that default list is modified in place. Although the current test passes because of how `setdefault` and `append` interact, it is bad practice and pot |
+| S5 (#12) | dev | baseline · c2 | [44912022310](https://github.com/Ishaank1805/tinydb/actions/runs/44912022310) | approve | approve | yes | [nit] The new method works correctly, but the implementation is straightforward and well documented. |
+| S5 (#12) | dev | reviewer-v1 · c2 | [44912337986](https://github.com/Ishaank1805/tinydb/actions/runs/44912337986) | approve | approve | yes |  |
+| S6 (#26) | heldout | baseline · c2 | [44912502178](https://github.com/Ishaank1805/tinydb/actions/runs/44912502178) | approve | approve | yes | [nit] The fix correctly addresses the issue where an iterator (like a generator) passed to `update_multiple` would be exhausted after the first use, resulting in only the first item being updated. By converting the iterator to a `list`, it allows multiple passes over the update data. |
+| S6 (#26) | heldout | reviewer-v1 · c2 | [44912840922](https://github.com/Ishaank1805/tinydb/actions/runs/44912840922) | approve | approve | yes |  |
+| S7 (#27) | heldout | baseline · c2 | [44913055017](https://github.com/Ishaank1805/tinydb/actions/runs/44913055017) | request_changes | request_changes | yes | [major] The implementation of `append` wraps non-list types (like dicts and numbers) into a list `[old_value, new_value]` instead of raising a `TypeError` as suggested by the issue requester. This could lead to silent data corruption or unexpected structure changes. |
+| S7 (#27) | heldout | reviewer-v1 · c2 | [44913290704](https://github.com/Ishaank1805/tinydb/actions/runs/44913290704) | request_changes | error | no |  |
+| S8 (#28) | heldout | baseline · c2 | [44913513866](https://github.com/Ishaank1805/tinydb/actions/runs/44913513866) | request_changes | approve | no | [nit] The docstring for `rename_table` uses standard reStructuredText, but it's worth noting that it follows the style of the rest of the project. No issue here. |
 
 ## Tokens by role (all runs)
 
@@ -144,7 +151,7 @@ The hidden tests are ground truth the reviewer never saw.
 | implementer | 59 | 203,239 | 3,788 | 343,665 | 0 |
 | judge | 18 | 10,305 | 2,042 | 0 | 0 |
 | planner | 133 | 685,705 | 28,393 | 1,332,270 | 0 |
-| reviewer | 798 | 2,845,097 | 99,147 | 2,428,971 | 0 |
+| reviewer | 893 | 3,157,058 | 110,455 | 2,651,270 | 0 |
 | test_author | 54 | 202,483 | 4,801 | 74,364 | 0 |
 
 ## Prompt-injection check (red-team issue)
