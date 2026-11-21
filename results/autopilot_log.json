@@ -1922,7 +1922,7 @@
       "variant": "single-agent",
       "rep": 1,
       "campaign": 2,
-      "status": "running",
+      "status": "done",
       "attempts": [
         {
           "trigger": "/autose variant=single-agent",
@@ -1930,7 +1930,13 @@
           "since": "2026-11-21T17:53:39Z",
           "triggered_at": "2026-11-21T17:55:41Z",
           "run_id": 44932693198,
-          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44932693198"
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44932693198",
+          "conclusion": "success",
+          "finished_at": "2026-11-21T18:02:12Z",
+          "outcome": "approved",
+          "pr": "21",
+          "tokens": 884100,
+          "usd": 0.0
         }
       ],
       "allowance": 2
