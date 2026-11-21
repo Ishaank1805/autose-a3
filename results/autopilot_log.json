@@ -1777,7 +1777,7 @@
       "variant": "baseline",
       "rep": 1,
       "campaign": 2,
-      "status": "pending",
+      "status": "done",
       "attempts": [
         {
           "trigger": "/autose",
@@ -1793,6 +1793,20 @@
           "tokens": 460176,
           "usd": 0.0,
           "note": "stopped by the provider's daily quota; re-run after the reset"
+        },
+        {
+          "trigger": "/autose",
+          "number": 4,
+          "since": "2026-11-21T17:03:44Z",
+          "triggered_at": "2026-11-21T17:05:47Z",
+          "run_id": 44928155059,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44928155059",
+          "conclusion": "success",
+          "finished_at": "2026-11-21T17:13:46Z",
+          "outcome": "approved",
+          "pr": "34",
+          "tokens": 576735,
+          "usd": 0.0
         }
       ],
       "allowance": 3
@@ -1804,8 +1818,23 @@
       "variant": "single-agent",
       "rep": 1,
       "campaign": 2,
-      "status": "pending",
-      "attempts": [],
+      "status": "done",
+      "attempts": [
+        {
+          "trigger": "/autose variant=single-agent",
+          "number": 4,
+          "since": "2026-11-21T17:11:48Z",
+          "triggered_at": "2026-11-21T17:13:50Z",
+          "run_id": 44928896498,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44928896498",
+          "conclusion": "success",
+          "finished_at": "2026-11-21T17:20:07Z",
+          "outcome": "approved",
+          "pr": "17",
+          "tokens": 729238,
+          "usd": 0.0
+        }
+      ],
       "allowance": 2
     },
     "c2:full:issue_4:baseline:1": {
@@ -1815,8 +1844,17 @@
       "variant": "baseline",
       "rep": 1,
       "campaign": 2,
-      "status": "pending",
-      "attempts": [],
+      "status": "running",
+      "attempts": [
+        {
+          "trigger": "/autose",
+          "number": 5,
+          "since": "2026-11-21T17:18:09Z",
+          "triggered_at": "2026-11-21T17:20:11Z",
+          "run_id": 44929475399,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44929475399"
+        }
+      ],
       "allowance": 2
     },
     "c2:full:issue_4:single-agent:1": {
