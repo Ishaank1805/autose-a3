@@ -2,7 +2,7 @@
 
 _Generated from real run artifacts by `collect_results.py`. Do not edit by hand._
 
-Runs: 50 (13 full, 37 review-only). Tokens: 12,342,319 total; estimated cost $0.00. 1 run(s) stopped by the model provider's daily quota are listed in runs.md but left out of every statistic below.
+Runs: 54 (13 full, 41 review-only). Tokens: 12,609,395 total; estimated cost $0.00. 1 run(s) stopped by the model provider's daily quota are listed in runs.md but left out of every statistic below.
 
 ## Stage pass rate (full runs on the five issues, round 0)
 
@@ -34,14 +34,14 @@ Share of runs that reached a stage and passed its check.
 
 | Metric | baseline · c1 | baseline · c2 | baseline · manual | reviewer-sees-rationale · c1 | reviewer-v1 · c2 |
 |---|---|---|---|---|---|
-| Reviews | 5 | 7 | 2 | 5 | 7 |
-| Defects caught (recall on defective PRs) | 0/3 (0%) | 0/4 (0%) | - | 1/3 (33%) | 1/4 (25%) |
-| Defects missed (false approvals) | 3/3 (100%) | 4/4 (100%) | - | 2/3 (67%) | 3/4 (75%) |
+| Reviews | 5 | 9 | 2 | 5 | 9 |
+| Defects caught (recall on defective PRs) | 0/3 (0%) | 1/6 (17%) | - | 1/3 (33%) | 2/6 (33%) |
+| Defects missed (false approvals) | 3/3 (100%) | 5/6 (83%) | - | 2/3 (67%) | 4/6 (67%) |
 | Clean PRs approved | 2/2 (100%) | 3/3 (100%) | 0/2 (0%) | 2/2 (100%) | 3/3 (100%) |
 | Clean PRs rejected (false alarms) | 0/2 (0%) | 0/3 (0%) | 0/2 (0%) | 0/2 (0%) | 0/3 (0%) |
-| Precision of "request changes" | - | - | - | 1/1 (100%) | 1/1 (100%) |
+| Precision of "request changes" | - | 1/1 (100%) | - | 1/1 (100%) | 2/2 (100%) |
 | No verdict (review error) | 0 | 0 | 2 | 0 | 0 |
-| Same verdict on every repeat of a PR | no repeats | 2/2 (100%) | 1/1 (100%) | no repeats | 2/2 (100%) |
+| Same verdict on every repeat of a PR | no repeats | 3/4 (75%) | 1/1 (100%) | no repeats | 4/4 (100%) |
 
 ### Independent reviewer on the held-out seeded PRs (S6–S10, built after reviewer v2)
 
@@ -131,6 +131,10 @@ The hidden tests are ground truth the reviewer never saw.
 | S1 (#8) | dev | reviewer-v1 · c2 | [44909474545](https://github.com/Ishaank1805/tinydb/actions/runs/44909474545) | approve | approve | yes | [minor] The PR correctly addresses the issue where `fragment()` queries on different paths shared the same cache key. By including `self._path` in the hash generated for `fragment()` calls, the query caching mechanism now properly distinguishes between queries on different paths. |
 | S2 (#9) | dev | baseline · c2 | [44909885659](https://github.com/Ishaank1805/tinydb/actions/runs/44909885659) | request_changes | approve | no | [minor] The PR introduces a behavior change where updates for the same document are now ignored after the first one is applied, because of the `break` statement. This was not requested and might be unexpected if a user provides multiple updates for the same document. However, given the primary use c |
 | S2 (#9) | dev | reviewer-v1 · c2 | [44910192403](https://github.com/Ishaank1805/tinydb/actions/runs/44910192403) | request_changes | approve | no |  |
+| S3 (#10) | dev | baseline · c2 | [44910362809](https://github.com/Ishaank1805/tinydb/actions/runs/44910362809) | request_changes | approve | no | [minor] The `drop_table` method was updated to call `_require_table`, which raises a `ValueError` if the table does not exist. The original implementation of `drop_table` (as seen in `scratch/base/tinydb/database.py`) silently ignored missing tables. While this is an improvement, it changes the exis |
+| S3 (#10) | dev | reviewer-v1 · c2 | [44910610359](https://github.com/Ishaank1805/tinydb/actions/runs/44910610359) | request_changes | approve | no | [nit] The implementation of rename_table is correct, robust, and fulfills all requirements, including cache clearing. The finding was categorized incorrectly as a 'major' issue instead of a positive observation. |
+| S4 (#11) | dev | baseline · c2 | [44911002860](https://github.com/Ishaank1805/tinydb/actions/runs/44911002860) | request_changes | request_changes | yes | [blocker] The `append` implementation uses a shared mutable `default` list in the closure, which causes all documents to share the same list instance. This is a significant bug. |
+| S4 (#11) | dev | reviewer-v1 · c2 | [44911713731](https://github.com/Ishaank1805/tinydb/actions/runs/44911713731) | request_changes | request_changes | yes | [major] The implementation of `append` uses a shared default list object, which can lead to unexpected behavior if multiple documents are updated and that default list is modified in place. Although the current test passes because of how `setdefault` and `append` interact, it is bad practice and pot |
 
 ## Tokens by role (all runs)
 
@@ -140,7 +144,7 @@ The hidden tests are ground truth the reviewer never saw.
 | implementer | 59 | 203,239 | 3,788 | 343,665 | 0 |
 | judge | 18 | 10,305 | 2,042 | 0 | 0 |
 | planner | 133 | 685,705 | 28,393 | 1,332,270 | 0 |
-| reviewer | 749 | 2,686,775 | 92,561 | 2,326,803 | 0 |
+| reviewer | 798 | 2,845,097 | 99,147 | 2,428,971 | 0 |
 | test_author | 54 | 202,483 | 4,801 | 74,364 | 0 |
 
 ## Prompt-injection check (red-team issue)
