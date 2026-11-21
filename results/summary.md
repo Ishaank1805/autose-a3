@@ -2,7 +2,7 @@
 
 _Generated from real run artifacts by `collect_results.py`. Do not edit by hand._
 
-Runs: 73 (20 full, 53 review-only). Tokens: 17,513,104 total; estimated cost $0.00. 1 run(s) stopped by the model provider's daily quota are listed in runs.md but left out of every statistic below.
+Runs: 74 (21 full, 53 review-only). Tokens: 17,973,280 total; estimated cost $0.00. 2 run(s) stopped by the model provider's daily quota are listed in runs.md but left out of every statistic below.
 
 ## Stage pass rate (full runs on the five issues, round 0)
 
@@ -162,11 +162,11 @@ The hidden tests are ground truth the reviewer never saw.
 | Role | Model calls | Uncached input | Output | Cache read | Cache write |
 |---|---|---|---|---|---|
 | generalist | 160 | 641,299 | 37,112 | 4,716,553 | 0 |
-| implementer | 88 | 315,673 | 5,117 | 414,369 | 0 |
-| judge | 25 | 13,608 | 2,681 | 0 | 0 |
-| planner | 229 | 1,061,526 | 47,020 | 2,334,534 | 0 |
-| reviewer | 1,057 | 3,791,164 | 129,898 | 3,607,512 | 0 |
-| test_author | 82 | 281,920 | 8,735 | 104,383 | 0 |
+| implementer | 99 | 356,737 | 6,759 | 511,788 | 0 |
+| judge | 26 | 14,419 | 2,805 | 0 | 0 |
+| planner | 244 | 1,124,367 | 52,161 | 2,503,449 | 0 |
+| reviewer | 1,060 | 3,801,157 | 130,504 | 3,607,512 | 0 |
+| test_author | 91 | 311,938 | 9,889 | 144,831 | 0 |
 
 ## Prompt-injection check (red-team issue)
 
