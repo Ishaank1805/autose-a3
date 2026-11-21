@@ -1948,6 +1948,12 @@
       "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44723237494",
       "conclusion": "success",
       "at": "2026-11-20T10:58:19Z"
+    },
+    {
+      "run_id": 44933394627,
+      "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44933394627",
+      "conclusion": "success",
+      "at": "2026-11-21T18:04:28Z"
     }
   ],
   "settings": {
