@@ -2,7 +2,7 @@
 
 _Generated from real run artifacts by `collect_results.py`. Do not edit by hand._
 
-Runs: 40 (13 full, 27 review-only). Tokens: 11,287,260 total; estimated cost $0.00. 1 run(s) stopped by the model provider's daily quota are listed in runs.md but left out of every statistic below.
+Runs: 44 (13 full, 31 review-only). Tokens: 11,812,677 total; estimated cost $0.00. 1 run(s) stopped by the model provider's daily quota are listed in runs.md but left out of every statistic below.
 
 ## Stage pass rate (full runs on the five issues, round 0)
 
@@ -47,12 +47,12 @@ Share of runs that reached a stage and passed its check.
 
 | Metric | baseline · c2 | reviewer-v1 · c2 |
 |---|---|---|
-| Reviews | 2 | 2 |
-| Defects caught (recall on defective PRs) | 0/1 (0%) | 1/1 (100%) |
-| Defects missed (false approvals) | 1/1 (100%) | 0/1 (0%) |
+| Reviews | 4 | 4 |
+| Defects caught (recall on defective PRs) | 1/3 (33%) | 2/3 (67%) |
+| Defects missed (false approvals) | 2/3 (67%) | 1/3 (33%) |
 | Clean PRs approved | 1/1 (100%) | 1/1 (100%) |
 | Clean PRs rejected (false alarms) | 0/1 (0%) | 0/1 (0%) |
-| Precision of "request changes" | - | 1/1 (100%) |
+| Precision of "request changes" | 1/1 (100%) | 2/2 (100%) |
 | No verdict (review error) | 0 | 0 |
 | Same verdict on every repeat of a PR | no repeats | no repeats |
 
@@ -121,6 +121,10 @@ The hidden tests are ground truth the reviewer never saw.
 | S6 (#26) | heldout | reviewer-v1 · c2 | [44906164611](https://github.com/Ishaank1805/tinydb/actions/runs/44906164611) | approve | approve | yes | [minor] The fix correctly materializes the generator to a list to allow multiple iterations over the updates in `update_multiple`, ensuring all records are processed. |
 | S7 (#27) | heldout | baseline · c2 | [44906316522](https://github.com/Ishaank1805/tinydb/actions/runs/44906316522) | request_changes | approve | no | [nit] The implementation converts non-list values to a list rather than raising TypeError as suggested by the user. However, this is a reasonable design choice for a flexible database like TinyDB. |
 | S7 (#27) | heldout | reviewer-v1 · c2 | [44906799647](https://github.com/Ishaank1805/tinydb/actions/runs/44906799647) | request_changes | request_changes | yes | [major] The implementation does not raise TypeError as requested in the issue. Instead, it converts non-list values (including dicts, strings, ints, etc.) into the first element of a new list. This is a design decision that directly contradicts the requirement 'raising a TypeError would make sense t |
+| S8 (#28) | heldout | baseline · c2 | [44907064980](https://github.com/Ishaank1805/tinydb/actions/runs/44907064980) | request_changes | request_changes | yes | [major] The rename_table method doesn't rename existing table objects in the cache (self._tables), which can lead to stale behavior. It also fails if the old name is the same as the new name, which is an unnecessary limitation. |
+| S8 (#28) | heldout | reviewer-v1 · c2 | [44907367099](https://github.com/Ishaank1805/tinydb/actions/runs/44907367099) | request_changes | request_changes | yes | [major] The implementation of `rename_table` does not update the `TinyDB._tables` cache or the `Table` object itself. As a result, if a user holds a reference to a `Table` object, it becomes a "stale" object that returns empty results instead of the data from the renamed table. This contradicts the  |
+| S9 (#29) | heldout | baseline · c2 | [44907689575](https://github.com/Ishaank1805/tinydb/actions/runs/44907689575) | request_changes | approve | no | [nit] The implementation of __ne__ correctly delegates to __eq__ and handles NotImplemented by returning NotImplemented instead of boolean negation. This is good practice. The logic for __eq__ correctly compares both doc_id and the content of the dictionary, which is essential for distinguishability |
+| S9 (#29) | heldout | reviewer-v1 · c2 | [44908332490](https://github.com/Ishaank1805/tinydb/actions/runs/44908332490) | request_changes | approve | no |  |
 
 ## Tokens by role (all runs)
 
@@ -130,7 +134,7 @@ The hidden tests are ground truth the reviewer never saw.
 | implementer | 59 | 203,239 | 3,788 | 343,665 | 0 |
 | judge | 18 | 10,305 | 2,042 | 0 | 0 |
 | planner | 133 | 685,705 | 28,393 | 1,332,270 | 0 |
-| reviewer | 604 | 2,078,137 | 73,316 | 1,899,627 | 0 |
+| reviewer | 681 | 2,409,556 | 82,595 | 2,084,346 | 0 |
 | test_author | 54 | 202,483 | 4,801 | 74,364 | 0 |
 
 ## Prompt-injection check (red-team issue)
