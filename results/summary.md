@@ -2,7 +2,7 @@
 
 _Generated from real run artifacts by `collect_results.py`. Do not edit by hand._
 
-Runs: 61 (13 full, 48 review-only). Tokens: 13,154,963 total; estimated cost $0.00. 1 run(s) stopped by the model provider's daily quota are listed in runs.md but left out of every statistic below.
+Runs: 66 (13 full, 53 review-only). Tokens: 13,792,516 total; estimated cost $0.00. 1 run(s) stopped by the model provider's daily quota are listed in runs.md but left out of every statistic below.
 
 ## Stage pass rate (full runs on the five issues, round 0)
 
@@ -47,14 +47,14 @@ Share of runs that reached a stage and passed its check.
 
 | Metric | baseline · c2 | reviewer-v1 · c2 |
 |---|---|---|
-| Reviews | 8 | 7 |
-| Defects caught (recall on defective PRs) | 2/5 (40%) | 2/4 (50%) |
-| Defects missed (false approvals) | 3/5 (60%) | 1/4 (25%) |
-| Clean PRs approved | 3/3 (100%) | 3/3 (100%) |
-| Clean PRs rejected (false alarms) | 0/3 (0%) | 0/3 (0%) |
-| Precision of "request changes" | 2/2 (100%) | 2/2 (100%) |
-| No verdict (review error) | 0 | 1 |
-| Same verdict on every repeat of a PR | 1/3 (33%) | 1/2 (50%) |
+| Reviews | 10 | 10 |
+| Defects caught (recall on defective PRs) | 2/6 (33%) | 3/6 (50%) |
+| Defects missed (false approvals) | 4/6 (67%) | 3/6 (50%) |
+| Clean PRs approved | 4/4 (100%) | 4/4 (100%) |
+| Clean PRs rejected (false alarms) | 0/4 (0%) | 0/4 (0%) |
+| Precision of "request changes" | 2/2 (100%) | 3/3 (100%) |
+| No verdict (review error) | 0 | 0 |
+| Same verdict on every repeat of a PR | 3/5 (60%) | 4/5 (80%) |
 
 ## Hidden acceptance tests (head commit of each run)
 
@@ -140,8 +140,13 @@ The hidden tests are ground truth the reviewer never saw.
 | S6 (#26) | heldout | baseline · c2 | [44912502178](https://github.com/Ishaank1805/tinydb/actions/runs/44912502178) | approve | approve | yes | [nit] The fix correctly addresses the issue where an iterator (like a generator) passed to `update_multiple` would be exhausted after the first use, resulting in only the first item being updated. By converting the iterator to a `list`, it allows multiple passes over the update data. |
 | S6 (#26) | heldout | reviewer-v1 · c2 | [44912840922](https://github.com/Ishaank1805/tinydb/actions/runs/44912840922) | approve | approve | yes |  |
 | S7 (#27) | heldout | baseline · c2 | [44913055017](https://github.com/Ishaank1805/tinydb/actions/runs/44913055017) | request_changes | request_changes | yes | [major] The implementation of `append` wraps non-list types (like dicts and numbers) into a list `[old_value, new_value]` instead of raising a `TypeError` as suggested by the issue requester. This could lead to silent data corruption or unexpected structure changes. |
-| S7 (#27) | heldout | reviewer-v1 · c2 | [44913290704](https://github.com/Ishaank1805/tinydb/actions/runs/44913290704) | request_changes | error | no |  |
+| S7 (#27) | heldout | reviewer-v1 · c2 | [44913290704](https://github.com/Ishaank1805/tinydb/actions/runs/44913290704) | request_changes | request_changes | yes | [major] The PR implementation does not meet the requirement of raising a TypeError if the field is not a list; instead, it automatically wraps the existing non-list value (even if it's a dictionary or another non-list type) into a list with the new value. The issue specifically requested: "If the fi |
 | S8 (#28) | heldout | baseline · c2 | [44913513866](https://github.com/Ishaank1805/tinydb/actions/runs/44913513866) | request_changes | approve | no | [nit] The docstring for `rename_table` uses standard reStructuredText, but it's worth noting that it follows the style of the rest of the project. No issue here. |
+| S8 (#28) | heldout | reviewer-v1 · c2 | [44913794919](https://github.com/Ishaank1805/tinydb/actions/runs/44913794919) | request_changes | approve | no | [minor] The implementation correctly fulfills the requirements. No blockers found. |
+| S9 (#29) | heldout | baseline · c2 | [44914067348](https://github.com/Ishaank1805/tinydb/actions/runs/44914067348) | request_changes | approve | no | [nit] The changelog entry lists 'unreleased', which is fine, but it might need to be dated or merged correctly depending on project policy, though this is minor. |
+| S9 (#29) | heldout | reviewer-v1 · c2 | [44914324560](https://github.com/Ishaank1805/tinydb/actions/runs/44914324560) | request_changes | approve | no |  |
+| S10 (#30) | heldout | baseline · c2 | [44914772002](https://github.com/Ishaank1805/tinydb/actions/runs/44914772002) | approve | approve | yes | [minor] The rename_table method successfully renames a table and persists the data correctly. Table instances held by the user remain valid for the new name or can be re-fetched. While old table objects still exist, they do not hold stale data due to the cache clearing implemented in the PR. |
+| S10 (#30) | heldout | reviewer-v1 · c2 | [44915107178](https://github.com/Ishaank1805/tinydb/actions/runs/44915107178) | approve | approve | yes | [nit] The implementation correctly handles table renaming, data preservation, ID preservation, persistence, conflict prevention, and cache clearing. |
 
 ## Tokens by role (all runs)
 
@@ -151,7 +156,7 @@ The hidden tests are ground truth the reviewer never saw.
 | implementer | 59 | 203,239 | 3,788 | 343,665 | 0 |
 | judge | 18 | 10,305 | 2,042 | 0 | 0 |
 | planner | 133 | 685,705 | 28,393 | 1,332,270 | 0 |
-| reviewer | 893 | 3,157,058 | 110,455 | 2,651,270 | 0 |
+| reviewer | 973 | 3,450,803 | 120,771 | 2,984,762 | 0 |
 | test_author | 54 | 202,483 | 4,801 | 74,364 | 0 |
 
 ## Prompt-injection check (red-team issue)
