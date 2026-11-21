@@ -689,7 +689,7 @@
       "variant": "baseline",
       "rep": 1,
       "campaign": 2,
-      "status": "error",
+      "status": "running",
       "attempts": [
         {
           "trigger": "/autose review #5",
@@ -712,9 +712,17 @@
           "since": "2026-11-21T10:00:56Z",
           "triggered_at": "2026-11-21T10:02:58Z",
           "note": "no workflow run appeared within 10 minutes"
+        },
+        {
+          "trigger": "/autose review #5",
+          "number": 11,
+          "since": "2026-11-21T12:25:41Z",
+          "triggered_at": "2026-11-21T12:27:43Z",
+          "run_id": 44904016845,
+          "url": "https://github.com/Ishaank1805/tinydb/actions/runs/44904016845"
         }
       ],
-      "allowance": 3
+      "allowance": 4
     },
     "c2:review:S4:reviewer-v1:1": {
       "id": "c2:review:S4:reviewer-v1:1",
