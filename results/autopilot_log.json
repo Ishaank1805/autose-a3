@@ -689,7 +689,7 @@
       "variant": "baseline",
       "rep": 1,
       "campaign": 2,
-      "status": "pending",
+      "status": "error",
       "attempts": [
         {
           "trigger": "/autose review #5",
@@ -705,6 +705,13 @@
           "tokens": 17608,
           "usd": 0.0,
           "note": "stopped by the provider's daily quota; re-run after the reset"
+        },
+        {
+          "trigger": "/autose review #5",
+          "number": 11,
+          "since": "2026-11-21T10:00:56Z",
+          "triggered_at": "2026-11-21T10:02:58Z",
+          "note": "no workflow run appeared within 10 minutes"
         }
       ],
       "allowance": 3
