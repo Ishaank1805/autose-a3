@@ -65,29 +65,66 @@ State across jobs is persisted entirely via immutable GitHub Actions artifacts (
 
 In baseline run [44724438807](https://github.com/Ishaank1805/tinydb/actions/runs/44724438807) (addressing Issue 1), maintainer dispatch initiated the gate job. The Planner generated `spec.md` with 4 testable acceptance criteria, validated by the Haiku judge. Design submission 1 failed because an uneditable test path was specified; submission 2 corrected this and passed. The Implementer modified `tinydb/queries.py` and passed compilation on attempt 1. The Test Author created `test_issue_1.py`, satisfying the JUnit suite and passing soft fail-to-pass. The deterministic release step opened [PR #13](https://github.com/Ishaank1805/tinydb/pull/13) and dispatched CI, which passed in 1m 24s. The independent reviewer verified the diff, executed the full test suite and a probe script, and approved the PR.
 
+### Execution Sequence View (Run 44724438807)
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor M as Maintainer
+  participant G as Gate job
+  participant H as Harness (orchestrator, checks)
+  participant P as Planner agent
+  participant I as Implementer agent
+  participant T as Test-author agent
+  participant C as CI workflow
+  participant R as Reviewer agent (own job)
+  actor U as Human
+  M->>G: full on #2 (baseline)
+  G->>H: sanitised issue snapshot
+  H->>P: requirements (round 0)
+  Note over H: testability check passed
+  P-->>H: submit for design check
+  Note over H: design check failed (attempt 1)
+  P-->>H: submit for design check
+  Note over H: design check passed (attempt 2)
+  H->>I: implementation (round 0) attempt 1/3
+  I-->>H: submit for implementation check
+  Note over H: implementation check passed
+  H->>T: testing (round 0)
+  T-->>H: submit for testing check
+  Note over H: testing check passed
+  H->>H: release (round 0)
+  Note over H: commit, push branch, open PR #13
+  H->>C: workflow_dispatch on PR branch
+  C-->>H: success (CI green)
+  H->>R: review round 1 (issue + diff + repo)
+  R-->>H: approve target none
+  H->>U: Independent reviewer approved - PR #13
+```
+
 ---
 
 ## 2 Design Decisions
 
-The architecture is governed by 14 Architectural Decision Records (ADRs):
+The architecture is governed by 15 Architectural Decision Records (ADRs):
 
-| Decision Area | ADR | Option Chosen | Main Option Rejected | Main Reason | Status |
+| Decision Area & Title | ADR | Option Chosen | Main Option Rejected | Main Reason | Status |
 |:---|:---|:---|:---|:---|:---|
-| **D1 Work Splitting** | [ADR-001](architecture/decisions/ADR-001.md) | 5 modular model roles | Monolithic single agent | Prevents self-reinforcing author bias in tests | Accepted |
-| **D2 Control Flow** | [ADR-002](architecture/decisions/ADR-002.md) | Deterministic state machine + Actions DAG | LLM-driven transitions | Ensures auditable bounds and finite retry limits | Accepted |
-| **D3 Hand-offs** | [ADR-003](architecture/decisions/ADR-003.md) | Structured artifacts, withhold reasoning | Passing full chat history | Prevents reviewer anchoring on developer excuses | Accepted |
-| **D4 State** | [ADR-004](architecture/decisions/ADR-004.md) | Job artifacts & issue status comment | Mutable runner cache | Ensures auditability; avoids cache pollution | Accepted |
-| **D5 Privileges** | [ADR-005](architecture/decisions/ADR-005.md) | Job-level write separation | Process-level boundaries | Assumed runner separation between build and release | Superseded |
-| **D6 Model Roles** | [ADR-006](architecture/decisions/ADR-006.md) | Tiered Claude models (Sonnet/Haiku/Opus) | Single frontier model | Prohibitive commercial API costs | Superseded |
-| **D7 Stage Checks** | [ADR-007](architecture/decisions/ADR-007.md) | Deterministic AST & JUnit checks | Pure LLM self-reporting | Self-reported completion masks regressions | Superseded |
-| **D8 Reviewer** | [ADR-008](architecture/decisions/ADR-008.md) | Reviewer v1 (prompt-based isolation) | Co-located reviewer agent | Co-location creates context leakage | Superseded |
-| **D9 Safety** | [ADR-009](architecture/decisions/ADR-009.md) | Untrusted data tags & command deny-list | Unfiltered prompt passing | Vulnerable to prompt injections and shell exploits | Accepted |
-| **D10 Triggers** | [ADR-010](architecture/decisions/ADR-010.md) | Write-permission check & serialized concurrency | Unrestricted public triggers | Prevents drive-by token exfiltration and branch clobbering | Accepted |
-| **D7 Stage Checks** | [ADR-011](architecture/decisions/ADR-011.md) | Doc-only plan bypass & blocking judge | Strict AST function check | Rigid AST checks blocked documentation fixes | **Accepted** |
-| **D6 Model Roles** | [ADR-012](architecture/decisions/ADR-012.md) | Dual Flash-Lite on 2 accounts, 80m budget | Commercial paid tier | Delivers $0 cost and prevents rate-limit stops | **Accepted** |
-| **D8 Reviewer** | [ADR-013](architecture/decisions/ADR-013.md) | Reviewer v2 (diff facts, base code, probes) | Reviewer v1 prompt | Empirically exposes behavioral diffs | **Accepted** |
-| **D9 Governance** | [ADR-014](architecture/decisions/ADR-014.md) | Strict quota pause & documented PRs | Mid-campaign manual switches | Prevents experimental confounding | **Accepted** |
-| **D5 Privileges** | [ADR-015](architecture/decisions/ADR-015.md) | In-memory token & process scrubbing | Job-level runner split | Preserves least privilege within shared build job | **Accepted** |
+| **D1 Work Splitting** (Model Roles & Stage Boundaries) | [ADR-001](architecture/decisions/ADR-001.md) | 5 modular model roles | Monolithic single agent | Prevents self-reinforcing author bias in tests | Accepted |
+| **D2 Control Flow** (Deterministic State Machine) | [ADR-002](architecture/decisions/ADR-002.md) | Deterministic state machine + Actions DAG | LLM-driven transitions | Ensures auditable bounds and finite retry limits | Accepted |
+| **D3 Hand-offs** (Structured Artifacts & Information Hiding) | [ADR-003](architecture/decisions/ADR-003.md) | Structured artifacts, withhold reasoning | Passing full chat history | Prevents reviewer anchoring on developer excuses | Accepted |
+| **D4 State** (Workspace & State Isolation) | [ADR-004](architecture/decisions/ADR-004.md) | Job artifacts & issue status comment | Mutable runner cache | Ensures auditability; avoids cache pollution | Accepted |
+| **D5 Privileges** (Write-Privilege Separation) | [ADR-005](architecture/decisions/ADR-005.md) | Job-level write separation | Process-level boundaries | Assumed runner separation between build and release | Superseded |
+| **D6 Model Roles** (Tiered Model Allocation) | [ADR-006](architecture/decisions/ADR-006.md) | Tiered Claude models (Sonnet/Haiku/Opus) | Single frontier model | Prohibitive commercial API costs | Superseded |
+| **D7 Stage Checks** (Deterministic Stage Gates) | [ADR-007](architecture/decisions/ADR-007.md) | Deterministic AST & JUnit checks | Pure LLM self-reporting | Self-reported completion masks regressions | Superseded |
+| **D8 Reviewer** (Independent Reviewer Isolation) | [ADR-008](architecture/decisions/ADR-008.md) | Reviewer v1 (prompt-based isolation) | Co-located reviewer agent | Co-location creates context leakage | Superseded |
+| **D9 Safety** (Prompt Injection & DoS Defense) | [ADR-009](architecture/decisions/ADR-009.md) | Untrusted data tags & command deny-list | Unfiltered prompt passing | Vulnerable to prompt injections and shell exploits | Accepted |
+| **D10 Triggers** (Trigger Authorization & Concurrency) | [ADR-010](architecture/decisions/ADR-010.md) | Write-permission check & serialized concurrency | Unrestricted public triggers | Prevents drive-by token exfiltration and branch clobbering | Accepted |
+| **D7 Stage Checks** (Doc-Only Plan AST Bypass) | [ADR-011](architecture/decisions/ADR-011.md) | Doc-only plan bypass & blocking judge | Strict AST function check | Rigid AST checks blocked documentation fixes | **Accepted** |
+| **D6 Model Roles** (Provider Allocation & Budget) | [ADR-012](architecture/decisions/ADR-012.md) | Dual Flash-Lite on 2 accounts, 80m budget | Commercial paid tier | Delivers $0 cost and prevents rate-limit stops | **Accepted** |
+| **D8 Reviewer** (Differential Probing & AST Facts) | [ADR-013](architecture/decisions/ADR-013.md) | Reviewer v2 (diff facts, base code, probes) | Reviewer v1 prompt | Empirically exposes behavioral diffs | **Accepted** |
+| **D9 Governance** (Quota Handling & Experiments) | [ADR-014](architecture/decisions/ADR-014.md) | Strict quota pause & documented PRs | Mid-campaign manual switches | Prevents experimental confounding | **Accepted** |
+| **D5 Privileges** (Least-Privilege Process Boundary) | [ADR-015](architecture/decisions/ADR-015.md) | In-memory token & process scrubbing | Job-level runner split | Preserves least privilege within shared build job | **Accepted** |
 
 ### Three Most Important Decisions
 
@@ -140,7 +177,7 @@ The D8 experiment evaluated reviewer effectiveness across two dimensions: (1) au
 
 ## 4 Results
 
-Across both campaigns, AutoSE executed **80 total runs** (27 full pipeline runs, 53 review runs), consuming **21,668,554 tokens** at an estimated cost of **$0.00** on Google Gemini free tier.
+Across both campaigns, AutoSE executed **80 total runs** (27 full pipeline runs, 53 review runs), consuming **21,668,554 tokens** at an estimated cost of **$0.00** on Google Gemini free tier. Both Google accounts operate without payment methods or billing accounts attached, establishing a provider-level hard spend limit of $0.00.
 
 ![Hidden Tests](../results/figures/hidden_tests.png)
 
@@ -165,10 +202,15 @@ The adversarial red-team issue embedded hidden HTML comment instructions orderin
 
 ## 5 Hindsight
 
-Reflecting on the architecture reveals three key lessons:
-1. **Differential Probing Does Not Guarantee Defect Rejection**: Reviewer v2 provided AST diff-facts and differential execution (`compare.sh` was called 15 times). Yet in 9 of the 30 defective reviews, the reviewer ran a probe that exhibited the bug and approved anyway, treating behavioural regressions as intentional or benign optimizations.
-2. **Rigid Checks Require Domain Exceptions**: In Campaign 1, the design check strictly required naming Python source functions, which blocked legitimate documentation-only fixes (run 44741723040). Introducing a documentation-only exception (PR #23) allowed run 44915278834 to pass design and open PR #33, demonstrating that deterministic heuristics must account for non-code artifacts.
-3. **Operational Hardening is Mandatory for Autonomous Agents**: Free-tier provider constraints (rate limits and quota pauses) require formal pausing protocols rather than mid-run heuristic adjustments.
+Reflecting on the architecture with full empirical data reveals five concrete design changes:
+
+1. **Canonical Differential Output Parser and Divergence Assertion**: Reviewer v2 called `compare.sh` 15 times, but in all 15 calls the output was unrecognised due to ad-hoc delimiters or missing probe paths, allowing the reviewer to observe changed behavior and approve anyway. A future iteration must enforce structured JSON output for `compare.sh` and treat any unexplained behavioral discrepancy as an automatic block.
+2. **Native Documentation-Only Plan Handling**: The design check required an emergency exception (PR #23) because it mandated Python source functions for every plan. Incorporating doc-only detection natively in the AST validator prevents false-positive stage rejections.
+3. **Two-Phase Requirements Gating**: Splitting requirements verification into a fast syntactic Given/When/Then check followed by semantic testability evaluation avoids wasting LLM judge tokens on malformed plans.
+4. **Dynamic Timeout Allocation**: Rather than a static 80-minute build budget across all tasks, allocating time budgets dynamically based on issue complexity and diff size would prevent single-agent timeouts while preserving concurrency.
+5. **Multi-Account Credential Pooling with Automated Quota Failover**: Instead of manual pausing during daily free-tier quota exhaustion, an automated credential rotator across accounts would prevent experiment stalling.
+
+**Which change comes first:** The **first change to implement** is **Change 1 (Canonical differential output parser and divergence assertion)**. While Reviewer v2 successfully provided differential tooling (`compare.sh`), 9 out of 30 defective reviews failed because the reviewer observed the regression but rationalized it as acceptable. Enforcing a hard assertion on behavioral divergence directly resolves the pipeline's primary remaining failure mode.
 
 ---
 
@@ -184,50 +226,7 @@ Reflecting on the architecture reveals three key lessons:
 
 ---
 
-# Appendix A — Sequence View of a Real Run
-
-Full execution trace from baseline run [44724438807](https://github.com/Ishaank1805/tinydb/actions/runs/44724438807) (Issue 1, resulting in approved PR #13):
-
-```mermaid
-sequenceDiagram
-  autonumber
-  actor M as Maintainer
-  participant G as Gate job
-  participant H as Harness (orchestrator, checks)
-  participant P as Planner agent
-  participant I as Implementer agent
-  participant T as Test-author agent
-  participant C as CI workflow
-  participant R as Reviewer agent (own job)
-  actor U as Human
-  M->>G: full on #2 (baseline)
-  G->>H: sanitised issue snapshot
-  H->>P: requirements (round 0)
-  P-->>H: submit for requirements check
-  Note over H: requirements check passed
-  H->>P: design (round 0)
-  P-->>H: submit for design check
-  Note over H: design check failed (attempt 1)
-  P-->>H: submit for design check
-  Note over H: design check passed (attempt 2)
-  H->>I: implementation (round 0) attempt 1/3
-  I-->>H: submit for implementation check
-  Note over H: implementation check passed
-  H->>T: testing (round 0)
-  T-->>H: submit for testing check
-  Note over H: testing check passed
-  H->>H: release (round 0)
-  Note over H: commit, push branch, open PR #13
-  H->>C: workflow_dispatch on PR branch
-  C-->>H: success (CI green)
-  H->>R: review round 1 (issue + diff + repo)
-  R-->>H: approve target none
-  H->>U: Independent reviewer approved - PR #13
-```
-
----
-
-# Appendix B — Token Usage and Cost Analysis
+# Appendix A — Token Usage and Cost Analysis
 
 Across 80 protocol runs, the pipeline consumed 21.67 million tokens with zero API expenditure:
 
@@ -245,7 +244,7 @@ Across 80 protocol runs, the pipeline consumed 21.67 million tokens with zero AP
 
 ---
 
-# Appendix C — Fixes and Interventions Log Summary
+# Appendix B — Fixes and Interventions Log Summary
 
 Full record of maintenance interventions and design pull requests applied to the fork:
 
@@ -263,9 +262,10 @@ Full record of maintenance interventions and design pull requests applied to the
 | 2026-11-24 | Post-campaign analysis | [PR #37](https://github.com/Ishaank1805/tinydb/pull/37) | Hardened `build_base_tree` with `GIT_CEILING_DIRECTORIES` and skipped-file checks |
 | 2026-11-24 | Seeded PR analysis | Script update (`analyze_reviews.py`) | Traced heredoc and directory probes, eliminated false "no probe" classifications |
 | 2026-11-24 | Comparison analysis | Script update (`analyze_reviews.py`) | Classified compare.sh transcript outputs and checked before/after code differences |
+| 2026-11-24 | Review rounds cap | [PR #39](https://github.com/Ishaank1805/tinydb/pull/39) | Set `max_change_requests` to 1 to enforce at most 2 review rounds per assignment specification |
 
 ---
 
-# Appendix D — AI-Use Statement
+# Appendix C — AI-Use Statement
 
 > **Use of AI.** AI was only used to generate the code.

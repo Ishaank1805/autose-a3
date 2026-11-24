@@ -8,14 +8,14 @@
 | **Pinned Upstream Commit** | `msiemens/tinydb@edff96aeb2616402e9489d46e90a592c05565621` |
 | **Course & Roll Number** | CS6.403 Software Engineering — Roll Number `2023114016` |
 | **Workflow Source** | `.github/workflows/autose.yml` in the fork (mirrored in [`workflow/`](workflow/)) |
-| **Primary Report** | [`report.pdf`](report.pdf) (8-page body PDF with comprehensive appendices) |
-| **Walkthrough Video** | [`demo.mp4`](demo.mp4) (237.6s narrated video, 16 slides, 4.4 MB) · metadata in [`demo.mp4.json`](demo.mp4.json) |
+| **Primary Report** | [`report.pdf`](report.pdf) (7-page body PDF with Appendices A–C) |
+| **Walkthrough Video** | [`demo.mp4`](demo.mp4) (4:08 / 248.2s narrated video with live screen recording, 16 slides, 5.1 MB) · metadata in [`demo.mp4.json`](demo.mp4.json) |
 
 ---
 
 ## Models and Infrastructure
 
-All model invocations route through the Google Gemini free tier via the OpenAI-compatible endpoint, incurring **$0.00** total cost across **21,668,554 tokens** and 80 protocol runs:
+All model invocations route through the Google Gemini free tier via the OpenAI-compatible endpoint, incurring **$0.00** total cost across **21,668,554 tokens** and 80 protocol runs. Both Google accounts operate without payment methods or billing accounts attached, establishing a provider-level hard spend limit of $0.00:
 
 - **`gemini-3.5-flash-lite`**: Assigned to the Planner (requirements & design), Implementer (code generation), and Single-Agent Generalist roles.
 - **`gemini-3.1-flash-lite`**: Assigned to the Test Author, Testability Judge, and Independent Reviewer roles.
@@ -51,8 +51,8 @@ AutoSE is gated by strict permission controls. Only users with at least `write` 
 ## Artifacts and Documentation Directory
 
 - **Report & Video**:
-  - [`report.pdf`](report.pdf): Full technical report (6 body pages, under 8-page cap, plus Appendices A–D).
-  - [`demo.mp4`](demo.mp4): 3-minute 57-second narrated demonstration video (audio synthesized via `edge-tts`).
+  - [`report.pdf`](report.pdf): Full technical report (7 body pages, under 8-page cap, plus Appendices A–C).
+  - [`demo.mp4`](demo.mp4): 4-minute 8-second narrated demonstration video with live screen recording (audio synthesized via `edge-tts`).
   - [`demo/storyboard.json`](demo/storyboard.json): 16-slide storyboard linking real issue, run, and PR URLs.
 - **Architecture**:
   - [`architecture/views/component.md`](architecture/views/component.md): Component diagram and Reviewer v2 differential probe architecture.
@@ -87,7 +87,7 @@ Every number below is derived strictly from real, auditable runs in [`results/su
   - *Multi-Agent Baseline*: Solved all 5 issues in Campaign 2 with 100% hidden tests passed (20/20), releasing 5/5 green PRs and using an average of 629,641 tokens per run (456,700 in C1). It stopped once at Issue 3 requirements in C1 ([run 44733750726](https://github.com/Ishaank1805/tinydb/actions/runs/44733750726)).
   - *Single-Agent*: Achieved 100% hidden tests in C1 and 80% (16/20) in C2, stopping at Issue 2 requirements after 3 rejected specification submissions ([run 44919386414](https://github.com/Ishaank1805/tinydb/actions/runs/44919386414)), while averaging 675,261 tokens per run in C2 (1,001,233 in C1).
 - **D8 Reviewer Experiment (Reviewer v1 vs. Reviewer v2)**:
-  - *No False Alarms*: Zero false alarms across the 16 reviews of clean seeded PRs (100% precision, defined as the share of request-changes verdicts that were correct).
+  - *No False Alarms*: Zero false alarms across all 20 reviews of clean seeded PRs (100% precision, defined as the share of request-changes verdicts that were correct; 20/20 approved).
   - *Defect Detection*: On held-out PRs (S6–S10), Reviewer v2 caught 2/6 defects (33%) and Reviewer v1 caught 3/6 defects (50%), identifying defects in S7 (silent type wrapping) and S8 (cache invalidation on rename).
   - *Tool Adoption & Comparison Verification*: Reviewer v2 called `compare.sh` 15 times in 12 reviews of defective seeded PRs (8 of 12 reviews invoked it at least once). However, analysis of recorded transcripts in `results/review_analysis.md` reveals that all 15 calls were classified as "output not recognised" (0 recorded both halves in canonical harness format, 0 showed a confirmed difference between PR head and the pre-change baseline). Reviewers frequently wrote custom `compare.sh` wrappers via shell heredocs, encountered missing probe paths (e.g. `python3: can't open file .../scratch/test_probe.py`), or printed custom test headers rather than canonical delimiters (`=== PR head ===` / `=== before the change ===`). Because 0 calls recorded both halves cleanly, whether reviewer v2's before/after comparison worked can be confirmed only for calls with both halves recorded.
   - *Error Analysis*: Of 30 defective seeded reviews, 12 missed because probes never exposed the defect; 9 missed because a probe exposed the defect but the reviewer approved anyway (e.g. in S2 [run 44909885659](https://github.com/Ishaank1805/tinydb/actions/runs/44909885659) and [run 44835481627](https://github.com/Ishaank1805/tinydb/actions/runs/44835481627), the reviewers noted that subsequent updates for the same document were ignored and approved anyway); 5 caught without an exposing probe; 4 caught with an exposing probe; 0 reviews were left without a probe of their own.
