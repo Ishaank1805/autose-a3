@@ -9,7 +9,7 @@
 | **Course & Roll Number** | CS6.403 Software Engineering — Roll Number `2023114016` |
 | **Workflow Source** | `.github/workflows/autose.yml` in the fork (mirrored in [`workflow/`](workflow/)) |
 | **Primary Report** | [`report.pdf`](report.pdf) (7-page body PDF with Appendices A–E) |
-| **Walkthrough Video** | [`demo.mp4`](demo.mp4) (4:08 / 248.2s narrated video with live screen recording, 16 slides, 5.1 MB) · metadata in [`demo.mp4.json`](demo.mp4.json) |
+| **Walkthrough Video** | [`demo.mp4`](demo.mp4) (4 min 1 s / 241.4s video with live screen recording of real GitHub pages for issue #2, run 44724438807, PR #13, review, and red-team issue #7; 16 slides, 7.2 MB) |
 
 ---
 
@@ -52,8 +52,7 @@ AutoSE is gated by strict permission controls. Only users with at least `write` 
 
 - **Report & Video**:
   - [`report.pdf`](report.pdf): Full technical report (7 body pages, under 8-page cap, plus Appendices A–E).
-  - [`demo.mp4`](demo.mp4): 4-minute 8-second narrated demonstration video with live screen recording (audio synthesized via `edge-tts`).
-  - [`demo/storyboard.json`](demo/storyboard.json): 16-slide storyboard linking real issue, run, and PR URLs.
+  - [`demo.mp4`](demo.mp4): 4-minute 1-second demonstration video with live screen recording.
 - **Architecture**:
   - [`architecture/views/component.md`](architecture/views/component.md): Component diagram and Reviewer v2 differential probe architecture.
   - [`architecture/views/stage_map.md`](architecture/views/stage_map.md): Stage-by-stage mapping of agents, artifacts, and gating checks.
@@ -103,15 +102,11 @@ Every number below is derived strictly from real, auditable runs in [`results/su
 .
 ├── README.md                          # Master documentation and submission overview
 ├── report.pdf                         # 7-page body technical report with Appendices A–E
-├── report.pdf.json                    # Page count metadata (7 body pages, 9 total)
-├── demo.mp4                           # Narrated demonstration video (248.2s, 5.1MB)
-├── demo.mp4.json                      # Video metadata and edge-tts synthesis record
+├── demo.mp4                           # Demonstration video (4 min 1 s, 7.2MB)
 ├── 2023114016_a3_AutoSE.txt           # Portal submission pointer file
 ├── architecture/
 │   ├── decisions/                     # ADR-001 through ADR-015, AUDIT.md, README.md
 │   └── views/                         # component.md, stage_map.md, sequence.md
-├── demo/
-│   └── storyboard.json                # 16-slide storyboard linking verified URLs
 ├── experiment/
 │   ├── campaign2.md                   # Campaign 2 protocol and replication guide
 │   ├── variants.md                    # Experimental variants documentation
@@ -120,8 +115,7 @@ Every number below is derived strictly from real, auditable runs in [`results/su
 │   ├── seeded_prs/                    # Seeded evaluation pull requests (S1-S10)
 │   └── scripts/                       # collect_results.py, analyze_reviews.py, make_figures.py
 ├── report/
-│   ├── report.md                      # Source markdown for the report
-│   └── report_pages.json              # Report page split verification
+│   └── report.md                      # Source markdown for the report
 ├── results/
 │   ├── summary.md                     # Aggregated experimental statistics
 │   ├── review_analysis.md             # Review error analysis and probe outcomes
