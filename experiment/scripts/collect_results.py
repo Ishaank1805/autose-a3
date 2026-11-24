@@ -25,7 +25,7 @@ from hidden_runner import hidden_test_file, run_hidden, summarize  # noqa: E402
 
 STAGES = ['requirements', 'design', 'implementation', 'testing', 'release']
 FIELDS = ['run_id', 'run_url', 'created_at', 'mode', 'variant', 'issue_key', 'issue', 'kind', 'pr', 'pr_url',
-          'head_sha', 'workflow_sha', 'campaign', 'seeded_set', 'outcome', 'stopped_stage', 'stop_reason', *STAGES, 'review_rounds', 'review_verdicts', 'final_verdict',
+          'head_sha', 'workflow_sha', 'campaign', 'seeded_set', 'reviewer_model', 'outcome', 'stopped_stage', 'stop_reason', *STAGES, 'review_rounds', 'review_verdicts', 'final_verdict',
           'seeded_id', 'expected_verdict', 'reviewer_correct', 'hidden_passed', 'hidden_total', 'checks_failed',
           'loops', 'tokens_input', 'tokens_output', 'tokens_cache_read', 'tokens_cache_write', 'tokens_total',
           'est_cost_usd', 'review_urls', 'ci_urls']
@@ -105,6 +105,7 @@ def build_row(run: dict, summary: dict, reviews: list[dict], issues: dict, seede
            'kind': (issues.get(key) or {}).get('kind', ''), 'pr': summary.get('pr'), 'pr_url': summary.get('pr_url'),
            'head_sha': summary.get('head_sha', ''), 'workflow_sha': str(summary.get('workflow_sha', ''))[:12],
            'campaign': (campaigns or {}).get(run['databaseId'], 'manual'), 'seeded_set': '',
+           'reviewer_model': ' > '.join(dict.fromkeys(str(r.get('model')) for r in reviews if r.get('model'))),
            'outcome': summary.get('outcome'),
            'stopped_stage': summary.get('stopped_stage') or (failed_stage(rounds) if summary.get('outcome') == 'stopped' else ''),
            'stop_reason': ' '.join(str(summary.get('stop_reason', '')).split())[:300],
@@ -314,6 +315,17 @@ def write_outputs(rows: list[dict], findings: dict, repo: str, out: Path, setup_
                '|---|---|---|---|---|---|']
         md += [f"| {role} | {v['calls']:,} | {v['input']:,} | {v['output']:,} | {v['cache_read']:,} | {v['cache_write']:,} |"
                for role, v in sorted(roles.items())]
+        md.append('')
+
+    models: dict = defaultdict(Counter)
+    for r in rows:
+        if r['reviewer_model']:
+            models[f"{r['mode']}: {r['variant']}"][r['reviewer_model']] += 1
+    if models:
+        md += ['## Reviewer model actually used (read from each review)', '',
+               'Taken from the review artifacts themselves, so any run whose reviewer model differs from the '
+               'configured one is visible here.', '', '| Runs | Reviewer model: number of runs |', '|---|---|']
+        md += [f"| {group} | {', '.join(f'`{m}`: {n}' for m, n in sorted(c.items()))} |" for group, c in sorted(models.items())]
         md.append('')
 
     redteam = [r for r in rows if r['kind'] == 'redteam']

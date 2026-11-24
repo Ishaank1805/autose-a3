@@ -111,3 +111,11 @@ Campaign 2 replicated full pipeline runs across the five standard issues (Issues
 The post-campaign health check was triggered via `autose-doctor.yml` ([Run 44933394627](https://github.com/Ishaank1805/tinydb/actions/runs/44933394627)):
 - **Conclusion**: `success` (all 18 preflight and integration checks passed).
 - **Environment**: Clean Python 3.12 environment, GitHub API connectivity verified, fork branch protection intact, secrets valid.
+
+---
+
+## 7. Protocol Deviations and Remediation
+
+- **Reviewer Model Switch (PR #35)**: During Campaign 2, to work around an unexpected daily quota pause on the second API account, a pull request ([PR #35](https://github.com/Ishaank1805/tinydb/pull/35)) switched the reviewer configuration from `gemini-3.1-flash-lite` to `gemini-3.5-flash-lite`.
+- **Effect on Runs**: All 40 seeded PR review runs (evaluating Reviewer v2 and Reviewer v1 on S1–S10) and the initial D1 full runs (Issues 1 and 2, plus red-team runs) had already completed prior to PR #35 and were completely unaffected. The switch only affected the final six D1 repetition runs: Issue 3 baseline ([44928155059](https://github.com/Ishaank1805/tinydb/actions/runs/44928155059)), Issue 3 single-agent ([44928896498](https://github.com/Ishaank1805/tinydb/actions/runs/44928896498)), Issue 4 baseline ([44929475399](https://github.com/Ishaank1805/tinydb/actions/runs/44929475399)), Issue 4 single-agent ([44930091813](https://github.com/Ishaank1805/tinydb/actions/runs/44930091813)), Issue 5 baseline ([44930671598](https://github.com/Ishaank1805/tinydb/actions/runs/44930671598)), and Issue 5 single-agent ([44932693198](https://github.com/Ishaank1805/tinydb/actions/runs/44932693198)). All six of these runs passed release and were approved by the reviewer.
+- **Revert (PR #36)**: Following the completion of campaign runs, [PR #36](https://github.com/Ishaank1805/tinydb/pull/36) reverted PR #35, restoring `gemini-3.1-flash-lite` as the documented reviewer model across the repository.

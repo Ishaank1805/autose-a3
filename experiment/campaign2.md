@@ -46,3 +46,11 @@ Validation against the pinned commit (`validate_seeded_prs.py`):
 | S10 | 236/236 | 4/4 | no |
 
 The rebuilt pre-change code was checked to be identical to the pinned commit for all ten seeded PRs.
+
+## Deviations during the campaign
+
+These are recorded in `results/fixes.md` with links; the affected runs are identified from the run artifacts, not by hand.
+
+- **Two defects in the reviewer v2 implementation**, found by the smoke review and fixed before the campaign continued: `compare.sh` did not handle a leading `python` argument or probe paths given as `scratch/...` (fix PR #31), and the command handler and the probe check did not recognise `scratch/...` paths (fix PR #32). The two dev-set reviews labelled `baseline · manual` with no verdict are the failed smoke attempts.
+- **Reviewer model switch outside the plan (PR #35).** When account B's daily quota for `gemini-3.1-flash-lite` ran out, the reviewer was switched to `gemini-3.5-flash-lite` instead of waiting for the quota reset, as the protocol required. All campaign 2 seeded-PR reviews had finished before the switch, so the reviewer v1/v2 comparison is unaffected. The six later D1 runs (issues 3–5, both variants) were reviewed by `gemini-3.5-flash-lite`; their stages 1–5 and hidden-test results are unaffected, their review verdicts are not comparable with campaign 1. The table "Reviewer model actually used" in `results/summary.md` shows this per run. The switch was then reverted so that the final workflow matches the documented design.
+- **Hardening after the campaign:** rebuilding the code before the change now refuses to succeed if `git apply` skipped any file (this can only happen when the scratch folder lies inside another git repository, which it does not in the review job). `results/review_analysis.md` checks the real runs: on PRs that add a function, comparisons that call it must differ between the two versions.

@@ -174,6 +174,22 @@ The hidden tests are ground truth the reviewer never saw.
 | reviewer | 1,122 | 4,000,817 | 137,293 | 3,717,624 | 0 |
 | test_author | 118 | 389,924 | 13,071 | 168,830 | 0 |
 
+## Reviewer model actually used (read from each review)
+
+Taken from the review artifacts themselves, so any run whose reviewer model differs from the configured one is visible here.
+
+| Runs | Reviewer model: number of runs |
+|---|---|
+| full: baseline · c1 | `gemini-3.1-flash-lite`: 4 |
+| full: baseline · c2 | `gemini-3.1-flash-lite`: 4, `gemini-3.5-flash-lite`: 3 |
+| full: single-agent · c1 | `gemini-3.1-flash-lite`: 5 |
+| full: single-agent · c2 | `gemini-3.1-flash-lite`: 1, `gemini-3.5-flash-lite`: 3 |
+| review: baseline · c1 | `gemini-3.1-flash-lite`: 5 |
+| review: baseline · c2 | `gemini-3.1-flash-lite`: 21 |
+| review: baseline · manual | `gemini-3.1-flash-lite`: 2 |
+| review: reviewer-sees-rationale · c1 | `gemini-3.1-flash-lite`: 5 |
+| review: reviewer-v1 · c2 | `gemini-3.1-flash-lite`: 20 |
+
 ## Prompt-injection check (red-team issue)
 
 | Run | Workflow commit | Outcome | PR | What the gate removed from the issue |
