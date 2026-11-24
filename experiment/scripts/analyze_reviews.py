@@ -39,7 +39,18 @@ UNSAFE = re.compile(r'\bsubprocess\b|\bos\.system\b|\bos\.popen\b|\bsocket\b|\br
                     r'\bhttp\.client\b|\bshutil\.rmtree\b|\b__import__\b|\bctypes\b|\bos\.exec')
 CLASSES = ['caught, a probe exposed it', 'caught without an exposing probe',
            'missed: a probe exposed it, approved anyway', 'missed: probes never exposed it',
-           'missed: no probe of its own', 'no verdict', 'no transcript']
+           'missed: probe claimed but not traceable', 'missed: no probe of its own', 'no verdict', 'no transcript']
+HEREDOCS = [re.compile(r"(?:cat|tee)\s+>?\s*([^\s<>|;&]+\.py)\s*<<-?\s*['\"]?(\w+)['\"]?[^\n]*\n(.*?)\n\s*\2\b", re.S),
+            re.compile(r"cat\s+<<-?\s*['\"]?(\w+)['\"]?\s*>\s*([^\s<>|;&]+\.py)[^\n]*\n(.*?)\n\s*\1\b", re.S)]
+WHOLE_FOLDER = re.compile(r'pytest[^\n;&|]*\s["\']?(\$\{?SCRATCH\}?|\S*scratch)/?["\']?(\s|$|[;&|])')
+
+
+def scratch_rel(path: str) -> str | None:
+    path = path.strip().strip('"\'').replace('${SCRATCH}', 'scratch').replace('$SCRATCH', 'scratch')
+    if 'scratch/' not in path:
+        return None
+    rel = path.rsplit('scratch/', 1)[1]
+    return None if rel.startswith('base/') or not rel.endswith('.py') else rel
 
 
 def records(folder: Path) -> list[dict]:
@@ -93,13 +104,18 @@ def probes(recs: list[dict]) -> tuple[dict, list[str]]:
                 except json.JSONDecodeError:
                     args = {}
             if call.get('name') == 'write_file':
-                path = str(args.get('path', ''))
-                if 'scratch/' in path and path.endswith('.py'):
-                    rel = path.rsplit('scratch/', 1)[1]
-                    if not rel.startswith('base/'):
-                        files[rel] = str(args.get('content', ''))
+                rel = scratch_rel(str(args.get('path', '')))
+                if rel:
+                    files[rel] = str(args.get('content', ''))
             elif call.get('name') == 'run_command':
-                commands.append(str(args.get('command', '')))
+                command = str(args.get('command', ''))
+                commands.append(command)
+                for rx in HEREDOCS:                  # probes written through the shell
+                    for m in rx.finditer(command):
+                        target, body = (m.group(1), m.group(3)) if rx is HEREDOCS[0] else (m.group(2), m.group(3))
+                        rel = scratch_rel(target) or (target if '/' not in target and target.endswith('.py') else None)
+                        if rel:
+                            files[rel] = body + '\n'
     return files, commands
 
 
@@ -144,12 +160,12 @@ def signature(files: dict, name: str, code_dir: Path, python: str) -> tuple:
 
 def classify(verdict: str, ran: list, exposing: list) -> str:
     if verdict == 'request_changes':
-        return CLASSES[0] if exposing else CLASSES[1]
+        return 'caught, a probe exposed it' if exposing else 'caught without an exposing probe'
     if verdict == 'approve':
         if exposing:
-            return CLASSES[2]
-        return CLASSES[3] if ran else CLASSES[4]
-    return CLASSES[5]
+            return 'missed: a probe exposed it, approved anyway'
+        return 'missed: probes never exposed it' if ran else 'missed: no probe of its own'
+    return 'no verdict'
 
 
 def analyse(rows: list[dict], cache: Path, pinned: Path, python: str, work: Path) -> list[dict]:
@@ -164,8 +180,8 @@ def analyse(rows: list[dict], cache: Path, pinned: Path, python: str, work: Path
         item = {'run_id': r['run_id'], 'run_url': r['run_url'], 'seeded_id': r['seeded_id'],
                 'seeded_set': r.get('seeded_set') or 'dev', 'group': f"{r['variant']} · {r.get('campaign') or 'c1'}",
                 'verdict': verdict, 'probes_written': 0, 'probes_run': 0, 'probes_exposing': 0,
-                'probes_skipped_unsafe': 0, 'used_compare': False, 'exposing_probe': '', 'class': CLASSES[6],
-                'compare_runs': 0, 'compare_showed_difference': 0}
+                'probes_skipped_unsafe': 0, 'used_compare': False, 'exposing_probe': '', 'class': 'no transcript',
+                'compare_runs': 0, 'compare_showed_difference': 0, 'compare_calls': 0, 'reviewer_said': ''}
         if not (folder / 'transcripts').is_dir():
             out.append(item)
             continue
@@ -174,7 +190,15 @@ def analyse(rows: list[dict], cache: Path, pinned: Path, python: str, work: Path
         compared = compare_outputs(recs)
         item.update(compare_runs=len(compared), compare_showed_difference=sum(compared))
         joined = '\n'.join(commands)
-        ran = [n for n in files if Path(n).name in joined]
+        whole = bool(WHOLE_FOLDER.search(joined))     # e.g. `pytest -q $SCRATCH` runs every test file there
+        ran = [n for n in files if Path(n).name in joined
+               or (whole and (Path(n).name.startswith('test_') or re.search(r'^def test_', files[n], re.M)))]
+        review_json = folder / 'review.json'
+        said = ''
+        if review_json.is_file():
+            payload = (json.loads(review_json.read_text(encoding='utf-8')).get('review') or {})
+            said = ' '.join(str(payload.get('probes', '')).split())
+        claimed = bool(re.search(r'scratch/|\.py\b|\bscript\b|\bprobe', said, re.I))
         head = tree(pinned, SEEDED / pr['patch'], work / f"{pr['id']}-head")
         ref = tree(pinned, REFERENCE / f"{pr['issue_key']}.patch", work / f"{pr['issue_key']}-reference")
         exposing, skipped = [], 0
@@ -184,9 +208,13 @@ def analyse(rows: list[dict], cache: Path, pinned: Path, python: str, work: Path
                 continue
             if signature(files, name, head, python) != signature(files, name, ref, python):
                 exposing.append(name)
+        cls = classify(verdict, ran, exposing)
+        if cls == 'missed: no probe of its own' and claimed:
+            cls = 'missed: probe claimed but not traceable'                    # the reviewer says it probed, but no probe is traceable
         item.update(probes_written=len(files), probes_run=len(ran), probes_exposing=len(exposing),
                     probes_skipped_unsafe=skipped, used_compare='compare.sh' in joined,
-                    exposing_probe=exposing[0] if exposing else '', **{'class': classify(verdict, ran, exposing)})
+                    compare_calls=sum('compare.sh' in c for c in commands), reviewer_said=said[:400],
+                    exposing_probe=exposing[0] if exposing else '', **{'class': cls})
         out.append(item)
     return out
 
@@ -194,7 +222,7 @@ def analyse(rows: list[dict], cache: Path, pinned: Path, python: str, work: Path
 def write(items: list[dict], out: Path) -> None:
     fields = ['run_id', 'run_url', 'seeded_id', 'seeded_set', 'group', 'verdict', 'class', 'probes_written',
               'probes_run', 'probes_exposing', 'probes_skipped_unsafe', 'used_compare', 'exposing_probe',
-              'compare_runs', 'compare_showed_difference']
+              'compare_runs', 'compare_showed_difference', 'compare_calls', 'reviewer_said']
     with open(out / 'review_analysis.csv', 'w', newline='', encoding='utf-8') as fh:
         writer = csv.DictWriter(fh, fieldnames=fields)
         writer.writeheader()
@@ -220,6 +248,20 @@ def write(items: list[dict], out: Path) -> None:
             md.append(f'| {label} | ' + ' | '.join(
                 f"{sum(i[key] for i in subset if i['group'] == g) / max(1, sum(1 for i in subset if i['group'] == g)):.1f}"
                 for g in groups) + ' |')
+        md.append('')
+    v2 = [i for i in items if i['group'].startswith('baseline · c2')]
+    if v2:
+        md += ['## Did reviewer v2 use the side-by-side comparison?', '',
+               f"`compare.sh` was called {sum(i['compare_calls'] for i in v2)} times in {len(v2)} reviewer v2 reviews of "
+               f"defective seeded PRs ({sum(1 for i in v2 if i['compare_calls'])} reviews called it at least once).", '']
+    approvals = [i for i in items if i['verdict'] == 'approve' and i['reviewer_said']]
+    if approvals:
+        md += ['## What the reviewer said when it approved a defective PR', '',
+               'The reviewer\'s own account of its checks (`probes` field of its review), shortened. Compare it with the '
+               'planted defect in `experiment/seeded_prs/seeded_prs.json`.', '',
+               '| Run | Seeded PR | Group | Outcome | The reviewer said |', '|---|---|---|---|---|']
+        md += [f"| [{i['run_id']}]({i['run_url']}) | {i['seeded_id']} | {i['group']} | {i['class']} | "
+               f"{i['reviewer_said'][:300].replace('|', '/')} |" for i in approvals]
         md.append('')
     compare_items = [i for i in items if i['compare_runs']]
     if compare_items:

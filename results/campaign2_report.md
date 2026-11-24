@@ -44,8 +44,12 @@ Reviewer v2 introduced two core capabilities:
 2. **Pre-Change Code Reversal**: Rebuilt pre-change repository commit allowing differential test scripts via `bash $SCRATCH/compare.sh probe.py`.
 
 ### Impact Observed
-- In **S4** (mutable default list in `append`), differential probes directly confirmed that modifying a list in one document mutated other documents updated in the same call. Both `reviewer-v1` and `baseline` identified this blocker.
-- In **S7** (silent list wrapping), the reviewer's probe verified that passing integer/dict values to `append` failed to raise `TypeError`, directly validating against the issue specification.
+- **Tool Adoption**: `compare.sh` was called 15 times in 12 reviewer v2 reviews of defective seeded PRs (8 reviews called it at least once).
+- In **S2** (dropped subsequent updates on multiple matches), reviewers observed the behavioral regression directly in probe outputs but approved anyway:
+  - Run [44909885659](https://github.com/Ishaank1805/tinydb/actions/runs/44909885659) (Reviewer v2): *"Verified that the generator issue is resolved and that the return value `updated_ids` is now correct. Verified that the `break` statement causes subsequent updates for the same document to be ignored, which is a departure from the previous behavior where all updates were applied."*
+  - Run [44835481627](https://github.com/Ishaank1805/tinydb/actions/runs/44835481627) (Reviewer v1): *"Verified that the `break` statement prevents a document from being updated multiple times if multiple rules match, which is a desirable optimization."*
+- In **S4** (mutable default list in `append`), differential probes directly confirmed that modifying a list in one document mutated other documents updated in the same call.
+- In **S7** (silent list wrapping), the reviewer's probe verified that passing integer/dict values to `append` failed to raise `TypeError`, but in run [44906316522](https://github.com/Ishaank1805/tinydb/actions/runs/44906316522) approved stating *"though it does not raise TypeError, it handles the case gracefully"*.
 - In **S8** (stale cache on rename), the reviewer ran probe scripts verifying that existing `Table` references returned empty dictionaries after renaming, catching the missing cache invalidation.
 
 ---
@@ -100,9 +104,9 @@ Campaign 2 replicated full pipeline runs across the five standard issues (Issues
 | Issue 5 | single-agent | [44738785680](https://github.com/Ishaank1805/tinydb/actions/runs/44738785680) | 4/4 | [44932693198](https://github.com/Ishaank1805/tinydb/actions/runs/44932693198) | **4/4** |
 
 ### Synthesis on Architecture (D1)
-- **Baseline Reliability**: In Campaign 2, `baseline` solved all 5 issues without stopping, achieving **100% hidden test pass rate (20/20)**. In Campaign 1, baseline stopped at Issue 3 requirements; in Campaign 2, Issue 3 was successfully planned, implemented, tested, released, and approved.
-- **Single-Agent Variance**: Single-agent achieved 100% in Campaign 1 but stopped at Issue 2 requirements in Campaign 2, demonstrating that single-context agents remain susceptible to requirement check rejections.
-- **Efficiency**: Multi-agent baseline required fewer tokens per run on average (629k tokens) compared to single-agent (675k tokens), maintaining modularity without incurring excess token overhead.
+- **Tied Outcomes Across 10 Runs per Variant**: Across both campaigns (5 runs per cell, 2 campaigns, total 10 runs per variant), both variants tied in final outcomes: both released 9/10 PRs and passed 36/40 hidden tests overall.
+- **Run Stops**: In Campaign 1, baseline stopped at Issue 3 requirements ([Run 44733750726](https://github.com/Ishaank1805/tinydb/actions/runs/44733750726)); in Campaign 2, baseline solved all 5 issues without stopping (100% hidden tests, 20/20). In Campaign 1, single-agent solved all 5 issues; in Campaign 2, single-agent stopped at Issue 2 requirements ([Run 44919386414](https://github.com/Ishaank1805/tinydb/actions/runs/44919386414)).
+- **Token Usage Means**: Multi-agent baseline averaged 456,700 tokens/run in C1 and 629,641 tokens/run in C2. Single-agent averaged 1,001,233 tokens/run in C1 and 675,261 tokens/run in C2. Without a significance test on this sample size (5 per cell), we report the observed sample means.
 
 ---
 

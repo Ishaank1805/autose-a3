@@ -8,11 +8,11 @@ For each review of a **defective** seeded PR, every probe script the reviewer wr
 
 | Outcome | baseline · c1 | baseline · c2 | reviewer-sees-rationale · c1 | reviewer-v1 · c2 |
 |---|---|---|---|---|
-| caught without an exposing probe | 0 | 1 | 1 | 2 |
-| missed: a probe exposed it, approved anyway | 1 | 0 | 0 | 0 |
-| missed: probes never exposed it | 2 | 2 | 2 | 2 |
-| missed: no probe of its own | 0 | 3 | 0 | 2 |
-| mean probes run per review | 1.0 | 0.5 | 0.7 | 0.8 |
+| caught, a probe exposed it | 0 | 1 | 1 | 0 |
+| caught without an exposing probe | 0 | 0 | 0 | 2 |
+| missed: a probe exposed it, approved anyway | 1 | 2 | 0 | 1 |
+| missed: probes never exposed it | 2 | 3 | 2 | 3 |
+| mean probes run per review | 1.0 | 2.8 | 1.7 | 1.5 |
 
 ## Held-out set (S7, S8, S9)
 
@@ -20,10 +20,41 @@ For each review of a **defective** seeded PR, every probe script the reviewer wr
 |---|---|---|
 | caught, a probe exposed it | 1 | 1 |
 | caught without an exposing probe | 1 | 2 |
-| missed: a probe exposed it, approved anyway | 2 | 2 |
+| missed: a probe exposed it, approved anyway | 3 | 2 |
 | missed: probes never exposed it | 1 | 1 |
-| missed: no probe of its own | 1 | 0 |
-| mean probes run per review | 1.3 | 1.0 |
+| mean probes run per review | 2.8 | 1.0 |
+
+## Did reviewer v2 use the side-by-side comparison?
+
+`compare.sh` was called 15 times in 12 reviewer v2 reviews of defective seeded PRs (8 reviews called it at least once).
+
+## What the reviewer said when it approved a defective PR
+
+The reviewer's own account of its checks (`probes` field of its review), shortened. Compare it with the planted defect in `experiment/seeded_prs/seeded_prs.json`.
+
+| Run | Seeded PR | Group | Outcome | The reviewer said |
+|---|---|---|---|---|
+| [44726926282](https://github.com/Ishaank1805/tinydb/actions/runs/44726926282) | S2 | baseline · c1 | missed: probes never exposed it | I wrote a reproduction script (scratch/test_issue.py) that used a generator with `update_multiple` and verified it works correctly. I checked the `perform_update` and `updater` logic and verified the fix. The added `break` ensures efficiency and correctness. |
+| [44727482476](https://github.com/Ishaank1805/tinydb/actions/runs/44727482476) | S2 | reviewer-sees-rationale · c1 | missed: probes never exposed it | Verified that update_multiple() now processes generators correctly. Confirmed that multiple updates for the same document in a single call result in a single ID in the returned list, which is consistent with the goal of ensuring a document is updated only once. |
+| [44728087592](https://github.com/Ishaank1805/tinydb/actions/runs/44728087592) | S3 | baseline · c1 | missed: probes never exposed it | - Verified table renaming, persistence of IDs, and cache clearing via ad-hoc python scripts. - Verified validation logic (source missing, destination exists) via ad-hoc python scripts. - Ran the full test suite and it passed (115 tests). |
+| [44728581542](https://github.com/Ishaank1805/tinydb/actions/runs/44728581542) | S3 | reviewer-sees-rationale · c1 | missed: probes never exposed it | Created scratch/test_rename.py to test table renaming, existence checks, ID persistence, and cache clearing. All passed. Also ran existing tests suite and everything passed. |
+| [44728991177](https://github.com/Ishaank1805/tinydb/actions/runs/44728991177) | S4 | baseline · c1 | missed: a probe exposed it, approved anyway | Ran existing tests and verified they pass. Reviewed the implementation of `append` in `tinydb/operations.py` for correctness and edge cases. |
+| [44835177517](https://github.com/Ishaank1805/tinydb/actions/runs/44835177517) | S2 | baseline · c2 | missed: probes never exposed it | Created a script `scratch/verify_fix.py` to reproduce the reported issue with a generator, and verified it works correctly after the fix. Also created `scratch/verify_fix_func.py` to verify it works with `operations` (as mentioned in the issue). Both pass. Ran existing test suite, all passed. |
+| [44835481627](https://github.com/Ishaank1805/tinydb/actions/runs/44835481627) | S2 | reviewer-v1 · c2 | missed: a probe exposed it, approved anyway | - Verified that the fix works for a generator that can only be consumed once. - Verified that `update_multiple` now returns the correct list of IDs. - Verified that the `break` statement prevents a document from being updated multiple times if multiple rules match, which is a desirable optimization. |
+| [44835793924](https://github.com/Ishaank1805/tinydb/actions/runs/44835793924) | S3 | baseline · c2 | missed: a probe exposed it, approved anyway | Added probe tests covering successful rename, rename to existing table, rename non-existent table, and stale table object handling. All passed. Verified consistency between `drop_table` and `rename_table` concerning non-existent tables. |
+| [44836167362](https://github.com/Ishaank1805/tinydb/actions/runs/44836167362) | S3 | reviewer-v1 · c2 | missed: probes never exposed it | Wrote `scratch/test_rename.py` to verify: 1. Renaming persists. 2. Cache is cleared for old and new tables (preventing stale results). 3. Renaming fails if the new table name already exists. 4. Renaming fails if the old table name does not exist. All tests passed. Also ran the full test suite (228 t |
+| [44904016845](https://github.com/Ishaank1805/tinydb/actions/runs/44904016845) | S4 | baseline · c2 | missed: probes never exposed it | Verified that `append` behaves as expected with missing, existing (list), and existing (non-list) fields. Verified that repeated `append` operations do not share the same mutable default list object. |
+| [44906316522](https://github.com/Ishaank1805/tinydb/actions/runs/44906316522) | S7 | baseline · c2 | missed: a probe exposed it, approved anyway | Created a script to verify that append correctly handles missing fields, existing lists, and single values. Confirmed that it works as expected (though it does not raise TypeError, it handles the case gracefully). |
+| [44907689575](https://github.com/Ishaank1805/tinydb/actions/runs/44907689575) | S9 | baseline · c2 | missed: a probe exposed it, approved anyway | Verified repr(), equality logic (including with dicts and other Documents), and __ne__ behavior. Verified that JSON serialization and dictionary conversion remain unaffected. Confirmed that hash() remains disabled as Document objects are mutable. |
+| [44908332490](https://github.com/Ishaank1805/tinydb/actions/runs/44908332490) | S9 | reviewer-v1 · c2 | missed: a probe exposed it, approved anyway | Ran existing tests and a custom scratch script testing repr, equality, and JSON serialization. All passed as expected. |
+| [44909885659](https://github.com/Ishaank1805/tinydb/actions/runs/44909885659) | S2 | baseline · c2 | missed: a probe exposed it, approved anyway | Verified that the generator issue is resolved and that the return value `updated_ids` is now correct. Verified that the `break` statement causes subsequent updates for the same document to be ignored, which is a departure from the previous behavior where all updates were applied. |
+| [44910192403](https://github.com/Ishaank1805/tinydb/actions/runs/44910192403) | S2 | reviewer-v1 · c2 | missed: probes never exposed it | I wrote a reproduction script in scratch/reproduce_issue.py, which failed before applying the fix (in my analysis) and passed with the current PR state. I also ran existing tests. |
+| [44910362809](https://github.com/Ishaank1805/tinydb/actions/runs/44910362809) | S3 | baseline · c2 | missed: probes never exposed it | Probed `rename_table` on PR head and verified it works as expected, including cache invalidation and error handling for missing/existing tables. Verified that the functionality is absent in the base version. |
+| [44910610359](https://github.com/Ishaank1805/tinydb/actions/runs/44910610359) | S3 | reviewer-v1 · c2 | missed: probes never exposed it | Created a scratch test suite (scratch/test_rename.py) that covers: 1. Document ID preservation. 2. Failure if target exists. 3. Failure if source missing. 4. Cache clearing for kept Table references. All tests passed. Ran full test suite: 228 passed, 1 skipped. |
+| [44913513866](https://github.com/Ishaank1805/tinydb/actions/runs/44913513866) | S8 | baseline · c2 | missed: probes never exposed it | Verified the functionality with `scratch/test_rename.py` including success and error scenarios. Confirmed `rename_table` behaves as expected. |
+| [44913794919](https://github.com/Ishaank1805/tinydb/actions/runs/44913794919) | S8 | reviewer-v1 · c2 | missed: probes never exposed it | - Wrote `scratch/test_rename.py` to test persistence and verify behavior of existing table objects. - Ran tests to verify implementation and existing functionality. |
+| [44914067348](https://github.com/Ishaank1805/tinydb/actions/runs/44914067348) | S9 | baseline · c2 | missed: a probe exposed it, approved anyway | Created a verification script comparing old vs new Document behavior. Confirmed that repr now includes doc_id and equality now distinguishes documents based on doc_id. |
+| [44914324560](https://github.com/Ishaank1805/tinydb/actions/runs/44914324560) | S9 | reviewer-v1 · c2 | missed: a probe exposed it, approved anyway | I verified the `__repr__` output format, confirmed the equality behavior with both dictionaries and other documents, and confirmed that the existing test suite passes. The `__eq__` and `__ne__` implementations are robust. I also verified the `__hash__ = None` setting (it was present in the class eve |
 
 ## Every review of a defective seeded PR
 
@@ -34,28 +65,28 @@ For each review of a **defective** seeded PR, every probe script the reviewer wr
 | [44728087592](https://github.com/Ishaank1805/tinydb/actions/runs/44728087592) | S3 | baseline · c1 | approve | missed: probes never exposed it | 1 | 0 | 0 | 0 (0) |
 | [44728581542](https://github.com/Ishaank1805/tinydb/actions/runs/44728581542) | S3 | reviewer-sees-rationale · c1 | approve | missed: probes never exposed it | 1 | 0 | 0 | 0 (0) |
 | [44728991177](https://github.com/Ishaank1805/tinydb/actions/runs/44728991177) | S4 | baseline · c1 | approve | missed: a probe exposed it, approved anyway | 1 | 1 | 0 | 0 (0) |
-| [44729470451](https://github.com/Ishaank1805/tinydb/actions/runs/44729470451) | S4 | reviewer-sees-rationale · c1 | request_changes | caught without an exposing probe | 0 | 0 | 0 | 0 (0) |
-| [44835177517](https://github.com/Ishaank1805/tinydb/actions/runs/44835177517) | S2 | baseline · c2 | approve | missed: no probe of its own | 0 | 0 | 0 | 0 (0) |
-| [44835481627](https://github.com/Ishaank1805/tinydb/actions/runs/44835481627) | S2 | reviewer-v1 · c2 | approve | missed: no probe of its own | 0 | 0 | 0 | 0 (0) |
-| [44835793924](https://github.com/Ishaank1805/tinydb/actions/runs/44835793924) | S3 | baseline · c2 | approve | missed: no probe of its own | 0 | 0 | 0 | 0 (0) |
+| [44729470451](https://github.com/Ishaank1805/tinydb/actions/runs/44729470451) | S4 | reviewer-sees-rationale · c1 | request_changes | caught, a probe exposed it | 3 | 1 | 0 | 0 (0) |
+| [44835177517](https://github.com/Ishaank1805/tinydb/actions/runs/44835177517) | S2 | baseline · c2 | approve | missed: probes never exposed it | 2 | 0 | 0 | 0 (0) |
+| [44835481627](https://github.com/Ishaank1805/tinydb/actions/runs/44835481627) | S2 | reviewer-v1 · c2 | approve | missed: a probe exposed it, approved anyway | 3 | 1 | 0 | 0 (0) |
+| [44835793924](https://github.com/Ishaank1805/tinydb/actions/runs/44835793924) | S3 | baseline · c2 | approve | missed: a probe exposed it, approved anyway | 4 | 1 | 0 | 0 (0) |
 | [44836167362](https://github.com/Ishaank1805/tinydb/actions/runs/44836167362) | S3 | reviewer-v1 · c2 | approve | missed: probes never exposed it | 1 | 0 | 0 | 0 (0) |
 | [44904016845](https://github.com/Ishaank1805/tinydb/actions/runs/44904016845) | S4 | baseline · c2 | approve | missed: probes never exposed it | 1 | 0 | 0 | 0 (0) |
 | [44904515362](https://github.com/Ishaank1805/tinydb/actions/runs/44904515362) | S4 | reviewer-v1 · c2 | request_changes | caught without an exposing probe | 1 | 0 | 0 | 0 (0) |
-| [44906316522](https://github.com/Ishaank1805/tinydb/actions/runs/44906316522) | S7 | baseline · c2 | approve | missed: no probe of its own | 0 | 0 | 0 | 0 (0) |
+| [44906316522](https://github.com/Ishaank1805/tinydb/actions/runs/44906316522) | S7 | baseline · c2 | approve | missed: a probe exposed it, approved anyway | 6 | 2 | 0 | 0 (0) |
 | [44906799647](https://github.com/Ishaank1805/tinydb/actions/runs/44906799647) | S7 | reviewer-v1 · c2 | request_changes | caught, a probe exposed it | 1 | 1 | 0 | 0 (0) |
-| [44907064980](https://github.com/Ishaank1805/tinydb/actions/runs/44907064980) | S8 | baseline · c2 | request_changes | caught without an exposing probe | 1 | 0 | 0 | 0 (0) |
+| [44907064980](https://github.com/Ishaank1805/tinydb/actions/runs/44907064980) | S8 | baseline · c2 | request_changes | caught without an exposing probe | 2 | 0 | 0 | 0 (0) |
 | [44907367099](https://github.com/Ishaank1805/tinydb/actions/runs/44907367099) | S8 | reviewer-v1 · c2 | request_changes | caught without an exposing probe | 1 | 0 | 0 | 0 (0) |
 | [44907689575](https://github.com/Ishaank1805/tinydb/actions/runs/44907689575) | S9 | baseline · c2 | approve | missed: a probe exposed it, approved anyway | 1 | 1 | 0 | 0 (0) |
 | [44908332490](https://github.com/Ishaank1805/tinydb/actions/runs/44908332490) | S9 | reviewer-v1 · c2 | approve | missed: a probe exposed it, approved anyway | 1 | 1 | 0 | 0 (0) |
-| [44909885659](https://github.com/Ishaank1805/tinydb/actions/runs/44909885659) | S2 | baseline · c2 | approve | missed: no probe of its own | 0 | 0 | 0 | 0 (0) |
-| [44910192403](https://github.com/Ishaank1805/tinydb/actions/runs/44910192403) | S2 | reviewer-v1 · c2 | approve | missed: no probe of its own | 0 | 0 | 0 | 0 (0) |
+| [44909885659](https://github.com/Ishaank1805/tinydb/actions/runs/44909885659) | S2 | baseline · c2 | approve | missed: a probe exposed it, approved anyway | 6 | 2 | 0 | 0 (0) |
+| [44910192403](https://github.com/Ishaank1805/tinydb/actions/runs/44910192403) | S2 | reviewer-v1 · c2 | approve | missed: probes never exposed it | 1 | 0 | 0 | 0 (0) |
 | [44910362809](https://github.com/Ishaank1805/tinydb/actions/runs/44910362809) | S3 | baseline · c2 | approve | missed: probes never exposed it | 2 | 0 | 0 | 0 (0) |
 | [44910610359](https://github.com/Ishaank1805/tinydb/actions/runs/44910610359) | S3 | reviewer-v1 · c2 | approve | missed: probes never exposed it | 1 | 0 | 0 | 0 (0) |
-| [44911002860](https://github.com/Ishaank1805/tinydb/actions/runs/44911002860) | S4 | baseline · c2 | request_changes | caught without an exposing probe | 0 | 0 | 0 | 0 (0) |
+| [44911002860](https://github.com/Ishaank1805/tinydb/actions/runs/44911002860) | S4 | baseline · c2 | request_changes | caught, a probe exposed it | 2 | 2 | 0 | 0 (0) |
 | [44911713731](https://github.com/Ishaank1805/tinydb/actions/runs/44911713731) | S4 | reviewer-v1 · c2 | request_changes | caught without an exposing probe | 2 | 0 | 0 | 0 (0) |
 | [44913055017](https://github.com/Ishaank1805/tinydb/actions/runs/44913055017) | S7 | baseline · c2 | request_changes | caught, a probe exposed it | 3 | 1 | 0 | 0 (0) |
 | [44913290704](https://github.com/Ishaank1805/tinydb/actions/runs/44913290704) | S7 | reviewer-v1 · c2 | request_changes | caught without an exposing probe | 1 | 0 | 0 | 0 (0) |
-| [44913513866](https://github.com/Ishaank1805/tinydb/actions/runs/44913513866) | S8 | baseline · c2 | approve | missed: probes never exposed it | 1 | 0 | 0 | 0 (0) |
+| [44913513866](https://github.com/Ishaank1805/tinydb/actions/runs/44913513866) | S8 | baseline · c2 | approve | missed: probes never exposed it | 2 | 0 | 0 | 0 (0) |
 | [44913794919](https://github.com/Ishaank1805/tinydb/actions/runs/44913794919) | S8 | reviewer-v1 · c2 | approve | missed: probes never exposed it | 1 | 0 | 0 | 0 (0) |
-| [44914067348](https://github.com/Ishaank1805/tinydb/actions/runs/44914067348) | S9 | baseline · c2 | approve | missed: a probe exposed it, approved anyway | 2 | 1 | 0 | 0 (0) |
+| [44914067348](https://github.com/Ishaank1805/tinydb/actions/runs/44914067348) | S9 | baseline · c2 | approve | missed: a probe exposed it, approved anyway | 3 | 1 | 0 | 0 (0) |
 | [44914324560](https://github.com/Ishaank1805/tinydb/actions/runs/44914324560) | S9 | reviewer-v1 · c2 | approve | missed: a probe exposed it, approved anyway | 1 | 1 | 0 | 0 (0) |

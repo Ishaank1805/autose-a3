@@ -58,7 +58,7 @@ AutoSE is gated by strict permission controls. Only users with at least `write` 
   - [`architecture/views/component.md`](architecture/views/component.md): Component diagram and Reviewer v2 differential probe architecture.
   - [`architecture/views/stage_map.md`](architecture/views/stage_map.md): Stage-by-stage mapping of agents, artifacts, and gating checks.
   - [`architecture/views/sequence.md`](architecture/views/sequence.md): Execution sequence diagram extracted from real baseline run [44724438807](https://github.com/Ishaank1805/tinydb/actions/runs/44724438807).
-  - [`architecture/decisions/README.md`](architecture/decisions/README.md): Master ADR index (ADR-001 through ADR-014), evolution narrative, and errata.
+  - [`architecture/decisions/README.md`](architecture/decisions/README.md): Master ADR index (ADR-001 through ADR-015), evolution narrative, and errata.
   - [`architecture/decisions/AUDIT.md`](architecture/decisions/AUDIT.md): Detailed verification matrix of ADR statements against repository code.
 - **Experiment Kit & Protocols**:
   - [`experiment/campaign2.md`](experiment/campaign2.md): Campaign 2 protocol specification and replication methodology.
@@ -83,12 +83,14 @@ Every number below is derived strictly from real, auditable runs in [`results/su
 
 - **Execution Totals**: **80 protocol runs** (27 full runs, 53 review runs), **21,668,554 tokens**, **$0.00 cost**.
 - **D1 Architecture Experiment (Multi-Agent vs. Single-Agent)**:
-  - *Multi-Agent Baseline*: Solved all 5 issues in Campaign 2 with **100% hidden test pass rate (20/20)**, releasing 5/5 green PRs and using an average of 629,641 tokens per run.
-  - *Single-Agent*: Achieved 80% hidden tests passed (16/20) in Campaign 2, stopping at Issue 2 requirements due to unrecoverable context saturation, while averaging 675,261 tokens per run.
+  - Across both campaigns (5 runs per cell, 2 campaigns, total 10 runs per variant), both variants tied in final outcomes: both released 9/10 PRs and passed 36/40 hidden tests overall.
+  - *Multi-Agent Baseline*: Solved all 5 issues in Campaign 2 with 100% hidden tests passed (20/20), releasing 5/5 green PRs and using an average of 629,641 tokens per run (456,700 in C1). It stopped once at Issue 3 requirements in C1 ([run 44733750726](https://github.com/Ishaank1805/tinydb/actions/runs/44733750726)).
+  - *Single-Agent*: Achieved 100% hidden tests in C1 and 80% (16/20) in C2, stopping at Issue 2 requirements after 3 rejected specification submissions ([run 44919386414](https://github.com/Ishaank1805/tinydb/actions/runs/44919386414)), while averaging 675,261 tokens per run in C2 (1,001,233 in C1).
 - **D8 Reviewer Experiment (Reviewer v1 vs. Reviewer v2)**:
-  - *Precision*: **100% precision** across all 40 seeded PR review runs (both variants, dev and held-out sets). Clean PRs were approved in 16/16 reviews with **zero false alarms**.
-  - *Defect Detection*: On held-out PRs (S6–S10), Reviewer v2 caught 2/6 defects (33%) and Reviewer v1 caught 3/6 defects (50%), identifying subtle bugs in S7 (silent type wrapping) and S8 (cache invalidation on rename).
-  - *Error Analysis*: Of 30 defective seeded reviews, 10 missed because probes did not target the edge case, 6 had no probe, and 5 were exposed by a probe but approved anyway due to lightweight model reasoning limits.
+  - *No False Alarms*: Zero false alarms across the 16 reviews of clean seeded PRs (100% precision, defined as the share of request-changes verdicts that were correct).
+  - *Defect Detection*: On held-out PRs (S6–S10), Reviewer v2 caught 2/6 defects (33%) and Reviewer v1 caught 3/6 defects (50%), identifying defects in S7 (silent type wrapping) and S8 (cache invalidation on rename).
+  - *Tool Adoption*: Reviewer v2 called `compare.sh` 15 times in 12 reviews of defective seeded PRs (8 of 12 reviews invoked it at least once).
+  - *Error Analysis*: Of 30 defective seeded reviews, 12 missed because probes never exposed the defect; 9 missed because a probe exposed the defect but the reviewer approved anyway (e.g. in S2 [run 44909885659](https://github.com/Ishaank1805/tinydb/actions/runs/44909885659) and [run 44835481627](https://github.com/Ishaank1805/tinydb/actions/runs/44835481627), the reviewers noted that subsequent updates for the same document were ignored and approved anyway); 5 caught without an exposing probe; 4 caught with an exposing probe; 0 reviews were left without a probe of their own.
 - **Security & Red-Team Resilience**:
   - Across all 6 red-team runs, the gate stripped the 346-character malicious HTML comment injection with **100% reliability**.
   - Under the documentation-only plan policy (PR #23), run [44915278834](https://github.com/Ishaank1805/tinydb/actions/runs/44915278834) passed all gates, opening approved [PR #33](https://github.com/Ishaank1805/tinydb/pull/33).
@@ -106,7 +108,7 @@ Every number below is derived strictly from real, auditable runs in [`results/su
 ├── demo.mp4.json                      # Video metadata and edge-tts synthesis record
 ├── 2023114016_a3_AutoSE.txt           # Portal submission pointer file
 ├── architecture/
-│   ├── decisions/                     # ADR-001 through ADR-014, AUDIT.md, README.md
+│   ├── decisions/                     # ADR-001 through ADR-015, AUDIT.md, README.md
 │   └── views/                         # component.md, stage_map.md, sequence.md
 ├── demo/
 │   └── storyboard.json                # 16-slide storyboard linking verified URLs

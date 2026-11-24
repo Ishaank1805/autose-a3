@@ -77,7 +77,7 @@ The architecture is governed by 14 Architectural Decision Records (ADRs):
 | **D2 Control Flow** | [ADR-002](architecture/decisions/ADR-002.md) | Deterministic state machine + Actions DAG | LLM-driven transitions | Ensures auditable bounds and finite retry limits | Accepted |
 | **D3 Hand-offs** | [ADR-003](architecture/decisions/ADR-003.md) | Structured artifacts, withhold reasoning | Passing full chat history | Prevents reviewer anchoring on developer excuses | Accepted |
 | **D4 State** | [ADR-004](architecture/decisions/ADR-004.md) | Job artifacts & issue status comment | Mutable runner cache | Ensures auditability; avoids cache pollution | Accepted |
-| **D5 Privileges** | [ADR-005](architecture/decisions/ADR-005.md) | Process scrubbing & path enforcement | Permissive API keys | Models cannot push branches or exfiltrate tokens | Accepted |
+| **D5 Privileges** | [ADR-005](architecture/decisions/ADR-005.md) | Job-level write separation | Process-level boundaries | Assumed runner separation between build and release | Superseded |
 | **D6 Model Roles** | [ADR-006](architecture/decisions/ADR-006.md) | Tiered Claude models (Sonnet/Haiku/Opus) | Single frontier model | Prohibitive commercial API costs | Superseded |
 | **D7 Stage Checks** | [ADR-007](architecture/decisions/ADR-007.md) | Deterministic AST & JUnit checks | Pure LLM self-reporting | Self-reported completion masks regressions | Superseded |
 | **D8 Reviewer** | [ADR-008](architecture/decisions/ADR-008.md) | Reviewer v1 (prompt-based isolation) | Co-located reviewer agent | Co-location creates context leakage | Superseded |
@@ -87,6 +87,7 @@ The architecture is governed by 14 Architectural Decision Records (ADRs):
 | **D6 Model Roles** | [ADR-012](architecture/decisions/ADR-012.md) | Dual Flash-Lite on 2 accounts, 80m budget | Commercial paid tier | Delivers $0 cost and prevents rate-limit stops | **Accepted** |
 | **D8 Reviewer** | [ADR-013](architecture/decisions/ADR-013.md) | Reviewer v2 (diff facts, base code, probes) | Reviewer v1 prompt | Empirically exposes behavioral diffs | **Accepted** |
 | **D9 Governance** | [ADR-014](architecture/decisions/ADR-014.md) | Strict quota pause & documented PRs | Mid-campaign manual switches | Prevents experimental confounding | **Accepted** |
+| **D5 Privileges** | [ADR-015](architecture/decisions/ADR-015.md) | In-memory token & process scrubbing | Job-level runner split | Preserves least privilege within shared build job | **Accepted** |
 
 ### Three Most Important Decisions
 
@@ -115,7 +116,7 @@ The D1 experiment evaluated whether decomposing the pipeline into specialized ro
 
 ![Stage Pass Rate](../results/figures/stage_pass_rate.png)
 
-**Synthesis on D1**: Multi-agent baseline proved significantly more token-efficient than single-agent across both campaigns (averaging ~543k tokens vs. ~838k tokens). In Campaign 1, baseline stopped at Issue 3 requirements; in Campaign 2, baseline achieved a flawless **100% hidden test pass rate (20/20)** across all five issues. Conversely, single-agent succeeded in C1 but suffered an unrecoverable requirement failure on Issue 2 in C2 (run [44919386414](https://github.com/Ishaank1805/tinydb/actions/runs/44919386414)). Modularity isolates context and prevents cognitive saturation.
+**Synthesis on D1**: Across both campaigns (5 runs per cell, 2 campaigns, total 10 runs per variant), both variants tied in release outcomes, each releasing 9/10 PRs and passing 36/40 hidden tests overall. Multi-agent baseline averaged 456,700 tokens/run in C1 and 629,641 tokens/run in C2; single-agent averaged 1,001,233 tokens/run in C1 and 675,261 tokens/run in C2. Without a significance test on this sample size (5 per cell), we report the observed sample means. Both variants stopped once at requirements: baseline in C1 on Issue 3 ([Run 44733750726](https://github.com/Ishaank1805/tinydb/actions/runs/44733750726)) and single-agent in C2 on Issue 2 ([Run 44919386414](https://github.com/Ishaank1805/tinydb/actions/runs/44919386414)) after 3 rejected specification submissions.
 
 ### D8: Independent Reviewer Evolution (Reviewer v1 vs. Reviewer v2)
 
@@ -133,7 +134,7 @@ The D8 experiment evaluated reviewer effectiveness across two dimensions: (1) au
 
 ![Seeded Reviews](../results/figures/seeded_reviews.png)
 
-**Synthesis on D8**: Across all 40 Campaign 2 seeded reviews, precision was 100%: neither reviewer ever rejected a clean PR. On held-out PRs, Reviewer v2 caught S7 (silent list wrapping) and S8 (stale cache on table rename). Reviewer v1 achieved slightly higher recall (50% vs 33% on held-out), demonstrating that prompt simplicity with Flash-Lite models can outperform complex differential tooling when model reasoning is constrained.
+**Synthesis on D8**: Across all 40 Campaign 2 seeded reviews, there were no false alarms in the 16 reviews of clean seeded PRs (100% precision, defined as the share of request-changes verdicts that were correct). Reviewer v2 called `compare.sh` 15 times across 12 reviews of defective PRs (8 reviews called it at least once). On held-out PRs, Reviewer v2 caught S7 and S8. In S2, both reviewers observed the dropped subsequent updates in probe output: Reviewer v2 in [run 44909885659](https://github.com/Ishaank1805/tinydb/actions/runs/44909885659) noted that "the `break` statement causes subsequent updates for the same document to be ignored, which is a departure from the previous behavior where all updates were applied", while Reviewer v1 in [run 44835481627](https://github.com/Ishaank1805/tinydb/actions/runs/44835481627) called it "a desirable optimization", and both approved anyway.
 
 ---
 
@@ -150,11 +151,11 @@ On the benchmark evaluation suite, multi-agent baseline achieved 16/20 (80%) in 
 ### Review Error Analysis
 
 Detailed analysis of the 30 defective seeded PR reviews (`results/review_analysis.md`) identified why defects were missed:
-- **Probes never exposed defect**: 10 runs (33.3%). Reviewers wrote general smoke tests rather than adversarial boundary cases.
-- **Caught without exposing probe**: 7 runs (23.3%). Reviewers spotted discrepancies via static inspection.
-- **No probe of its own**: 6 runs (20.0%). Reviewers failed to write a custom probe script.
-- **Exposed but approved anyway**: 5 runs (16.7%). The probe stdout exhibited the bug, but the LLM failed to interpret the anomaly.
-- **Caught with exposing probe**: 2 runs (6.7%). Probes actively triggered differential failures that guided rejection.
+- **Probes never exposed defect**: 12 runs (40.0%). Probes tested general functionality without triggering the planted edge case.
+- **Exposed but approved anyway**: 9 runs (30.0%). Probes produced outputs demonstrating the bug, but the reviewer approved the change (e.g. S2 runs 44909885659 and 44835481627 observing dropped updates and approving).
+- **Caught without exposing probe**: 5 runs (16.7%). Reviewers identified defects through static code inspection.
+- **Caught with exposing probe**: 4 runs (13.3%). Probes exposed behavioral differences between base and PR, leading to rejection.
+- **No probe of its own**: 0 runs (0.0%). Every review executed at least one probe.
 
 ### Red-Team Security Evaluation
 
@@ -165,8 +166,8 @@ The adversarial red-team issue embedded hidden HTML comment instructions orderin
 ## 5 Hindsight
 
 Reflecting on the architecture reveals three key lessons:
-1. **Tooling Cannot Compensate for Lightweight Model Capacity**: Reviewer v2 provided full AST diff-facts, reconstructed pre-change code, and differential execution. However, `gemini-3.1-flash-lite` frequently lacked the reasoning capacity to synthesize probe outputs into accurate defect diagnoses.
-2. **Deterministic Stage Gates Outperform Advisory Checks**: When gates relied on advisory LLM signals, subtle defects slipped through. Moving to hard AST and JUnit gates eliminated invalid code progression.
+1. **Differential Probing Does Not Guarantee Defect Rejection**: Reviewer v2 provided AST diff-facts and differential execution (`compare.sh` was called 15 times). Yet in 9 of the 30 defective reviews, the reviewer ran a probe that exhibited the bug and approved anyway, treating behavioural regressions as intentional or benign optimizations.
+2. **Rigid Checks Require Domain Exceptions**: In Campaign 1, the design check strictly required naming Python source functions, which blocked legitimate documentation-only fixes (run 44741723040). Introducing a documentation-only exception (PR #23) allowed run 44915278834 to pass design and open PR #33, demonstrating that deterministic heuristics must account for non-code artifacts.
 3. **Operational Hardening is Mandatory for Autonomous Agents**: Free-tier provider constraints (rate limits and quota pauses) require formal pausing protocols rather than mid-run heuristic adjustments.
 
 ---
@@ -174,7 +175,7 @@ Reflecting on the architecture reveals three key lessons:
 ## 6 Limitations
 
 1. **Small Sample Sizes & LLM Stochasticity**: With 5 issues and 10 seeded PRs, individual run-to-run variances in Flash-Lite heavily impact percentage metrics (e.g. C1 baseline Issue 3 stop vs C2 100% pass).
-2. **Flash-Lite Reasoning Saturation**: Lightweight models display high sensitivity to prompt structure at requirements and design, occasionally exhausting 3 submissions on minor syntax issues.
+2. **Specification and Design Check Rejections**: Run [44790093537](https://github.com/Ishaank1805/tinydb/actions/runs/44790093537) stopped at design after 3 submissions because the plan listed `tests/test_issue_7.py` in the changes table instead of only in planned tests, causing the checker to require Python source functions. Single-agent run [44919386414](https://github.com/Ishaank1805/tinydb/actions/runs/44919386414) stopped at requirements after 3 submissions when acceptance criteria failed testability checks.
 3. **Single Target Codebase**: Evaluated solely on `tinydb`; findings on test generation and review probing may not generalize to larger monorepos or compiled languages.
 4. **Free Tier Latency Constraints**: Mandatory 6.5s pacing expanded run durations to 40–70 minutes, creating scheduling bottlenecks.
 5. **Seeded Defect Authorship Bias**: Seeded PRs were authored by the same engineering team, potentially introducing implicit domain biases.
@@ -259,6 +260,7 @@ Full record of maintenance interventions and design pull requests applied to the
 | 2026-11-21 | Full run [44919969207](https://github.com/Ishaank1805/tinydb/actions/runs/44919969207) | [PR #35](https://github.com/Ishaank1805/tinydb/pull/35) | Temporary switch of reviewer model to `gemini-3.5-flash-lite` during quota pause |
 | 2026-11-24 | Post-campaign alignment | [PR #36](https://github.com/Ishaank1805/tinydb/pull/36) | Reverted PR #35 to restore canonical `gemini-3.1-flash-lite` reviewer model |
 | 2026-11-24 | Post-campaign analysis | [PR #37](https://github.com/Ishaank1805/tinydb/pull/37) | Hardened `build_base_tree` with `GIT_CEILING_DIRECTORIES` and skipped-file checks |
+| 2026-11-24 | Seeded PR analysis | Script update (`analyze_reviews.py`) | Traced heredoc and directory probes, eliminated false "no probe" classifications |
 
 ---
 
