@@ -1,0 +1,267 @@
+# AutoSE: Automated Software Engineering for TinyDB
+
+**Course:** CS6.403 Software Engineering — Assignment 3  
+**Author Roll Number:** 2023114016  
+**Date:** 2026-11-24  
+**Repositories:** [Submission Repository (Ishaank1805/autose-a3)](https://github.com/Ishaank1805/autose-a3) · [Fork Repository (Ishaank1805/tinydb)](https://github.com/Ishaank1805/tinydb)
+
+---
+
+## 1 Architecture
+
+AutoSE is an autonomous lifecycle harness that automates software maintenance for the `tinydb` repository. It accepts GitHub issues, develops test-backed pull requests through five distinct stages, and subjects candidates to an adversarial, independent review.
+
+```mermaid
+flowchart LR
+  M((Maintainer)) -->|"label autose / /autose"| ISS["Issue"]
+  subgraph RUN["autose.yml (Actions Run)"]
+    G["Gate Job (no LLM)<br/>Permission & Snapshot"]
+    subgraph BJ["Build / Rework Job"]
+      O["Orchestrator<br/>Deterministic SM"]
+      PL["Planner Agent<br/>Stages 1-2"]
+      JD["Judge Model<br/>Testability"]
+      IM["Implementer<br/>Stage 3"]
+      TA["Test Author<br/>Stage 4"]
+      CK["Deterministic Checks<br/>AST, JUnit, Policy"]
+      RL["Release Step<br/>Commit, PR, CI"]
+    end
+    subgraph RJ["Review Job (contents: read)"]
+      PRE["Prepare Context"]
+      DF["Diff Facts & Base Rebuild"]
+      RA["Reviewer v2 Agent"]
+      PG["Probe Gate"]
+      POST["Post Comment"]
+    end
+    REP["Report Job"]
+  end
+  ISS --> G --> O --> PL & IM & TA
+  PL -.-> JD
+  O --> CK
+  O --> RL -->|"push"| PR["Pull Request"]
+  RL -->|"dispatch"| CI["ci.yml"]
+  PR --> PRE --> DF --> RA --> PG --> POST --> PR
+  POST -.->|"request_changes"| O
+  REP --> ISS
+```
+
+### Stage Pipeline and Gating
+
+The pipeline divides the software development lifecycle into six modular stages governed by strict gates:
+
+| # | Stage | Agent / Model | Inputs | Artifact | Authoritative Gate | If Check Fails |
+|---|---|---|---|---|---|---|
+| 1 | Requirements | Planner (`3.5-flash-lite`) | Sanitized issue snapshot | `spec.md` | Structural Given/When/Then, verification line, and blocking testability judge (`3.1-flash-lite`) | Revise (max 3 submissions); else stop |
+| 2 | Design | Planner (`3.5-flash-lite`) | `spec.md`, `ARCHITECTURE.md` | `design.md` | Paths exist/editable; AST validates functions; documentation-only bypass (PR #23) | Revise (max 3 submissions); else stop |
+| 3 | Implementation | Implementer (`3.5-flash-lite`) | `spec.md`, `design.md` | `diff.patch` | Clean bytecode compilation and pytest collection; strict path policy | Revise (3 tries); max 3 attempts; redesign |
+| 4 | Testing | Test Author (`3.1-flash-lite`) | `spec.md`, `design.md`, diff | `test_report.md` | Full JUnit suite green; all ACs tested; soft fail-to-pass verified | Return to stage 3 with test failures |
+| 5 | Release | Harness (deterministic) | Working tree | `pr.md` | Bot branch pushed; PR open; explicitly dispatched `ci.yml` passes | Return to stage 3 on CI failure |
+| 6 | Review | Reviewer v2 (`3.1-flash-lite`) | Diff, diff-facts, base code | `review.md` | Empirical pytest run green; mandatory differential probe ran; no blockers | Request changes (target stage, max 2 reworks) |
+
+### State, Permissions, and Untrusted Input
+
+State across jobs is persisted entirely via immutable GitHub Actions artifacts (`autose-issue`, `autose-state-r<N>`, `autose-review-r<N>`) and summarized in a live issue status comment. Model processes operate in scrubbed sandbox environments with no GitHub credentials. Writable paths are restricted: the implementer is confined to `tinydb/**` and docs; the test author is restricted to `tests/test_issue_<N>.py`; the reviewer writes only to isolated scratch storage. All human issue text is encapsulated in `<untrusted_issue>` tags and sanitized by the gate to strip malicious injections.
+
+### Real Run Walkthrough: Run 44724438807
+
+In baseline run [44724438807](https://github.com/Ishaank1805/tinydb/actions/runs/44724438807) (addressing Issue 1), maintainer dispatch initiated the gate job. The Planner generated `spec.md` with 4 testable acceptance criteria, validated by the Haiku judge. Design submission 1 failed because an uneditable test path was specified; submission 2 corrected this and passed. The Implementer modified `tinydb/queries.py` and passed compilation on attempt 1. The Test Author created `test_issue_1.py`, satisfying the JUnit suite and passing soft fail-to-pass. The deterministic release step opened [PR #13](https://github.com/Ishaank1805/tinydb/pull/13) and dispatched CI, which passed in 1m 24s. The independent reviewer verified the diff, executed the full test suite and a probe script, and approved the PR.
+
+---
+
+## 2 Design Decisions
+
+The architecture is governed by 14 Architectural Decision Records (ADRs):
+
+| Decision Area | ADR | Option Chosen | Main Option Rejected | Main Reason | Status |
+|:---|:---|:---|:---|:---|:---|
+| **D1 Work Splitting** | [ADR-001](architecture/decisions/ADR-001.md) | 5 modular model roles | Monolithic single agent | Prevents self-reinforcing author bias in tests | Accepted |
+| **D2 Control Flow** | [ADR-002](architecture/decisions/ADR-002.md) | Deterministic state machine + Actions DAG | LLM-driven transitions | Ensures auditable bounds and finite retry limits | Accepted |
+| **D3 Hand-offs** | [ADR-003](architecture/decisions/ADR-003.md) | Structured artifacts, withhold reasoning | Passing full chat history | Prevents reviewer anchoring on developer excuses | Accepted |
+| **D4 State** | [ADR-004](architecture/decisions/ADR-004.md) | Job artifacts & issue status comment | Mutable runner cache | Ensures auditability; avoids cache pollution | Accepted |
+| **D5 Privileges** | [ADR-005](architecture/decisions/ADR-005.md) | Process scrubbing & path enforcement | Permissive API keys | Models cannot push branches or exfiltrate tokens | Accepted |
+| **D6 Model Roles** | [ADR-006](architecture/decisions/ADR-006.md) | Tiered Claude models (Sonnet/Haiku/Opus) | Single frontier model | Prohibitive commercial API costs | Superseded |
+| **D7 Stage Checks** | [ADR-007](architecture/decisions/ADR-007.md) | Deterministic AST & JUnit checks | Pure LLM self-reporting | Self-reported completion masks regressions | Superseded |
+| **D8 Reviewer** | [ADR-008](architecture/decisions/ADR-008.md) | Reviewer v1 (prompt-based isolation) | Co-located reviewer agent | Co-location creates context leakage | Superseded |
+| **D9 Safety** | [ADR-009](architecture/decisions/ADR-009.md) | Untrusted data tags & command deny-list | Unfiltered prompt passing | Vulnerable to prompt injections and shell exploits | Accepted |
+| **D10 Triggers** | [ADR-010](architecture/decisions/ADR-010.md) | Write-permission check & serialized concurrency | Unrestricted public triggers | Prevents drive-by token exfiltration and branch clobbering | Accepted |
+| **D7 Stage Checks** | [ADR-011](architecture/decisions/ADR-011.md) | Doc-only plan bypass & blocking judge | Strict AST function check | Rigid AST checks blocked documentation fixes | **Accepted** |
+| **D6 Model Roles** | [ADR-012](architecture/decisions/ADR-012.md) | Dual Flash-Lite on 2 accounts, 80m budget | Commercial paid tier | Delivers $0 cost and prevents rate-limit stops | **Accepted** |
+| **D8 Reviewer** | [ADR-013](architecture/decisions/ADR-013.md) | Reviewer v2 (diff facts, base code, probes) | Reviewer v1 prompt | Empirically exposes behavioral diffs | **Accepted** |
+| **D9 Governance** | [ADR-014](architecture/decisions/ADR-014.md) | Strict quota pause & documented PRs | Mid-campaign manual switches | Prevents experimental confounding | **Accepted** |
+
+### Three Most Important Decisions
+
+1. **Deterministic Controller (ADR-002)**: We rejected allowing an LLM to orchestrate pipeline transitions. When models control loops, they often enter hallucinated retry cycles or terminate prematurely. By embedding an explicit state machine in `autose/orchestrator.py` and unrolling review reworks in `autose.yml`, every run obeys hard upper bounds (max 3 submissions, max 2 reworks).
+2. **Reviewer Independence and Differential Probing (ADR-008, ADR-013)**: In Campaign 1, baseline Reviewer v1 approved 100% of defective seeded PRs (0/3 caught). When provided the author's rationale, recall increased to 1/3, but author excuses anchored the reviewer. Reviewer v2 instead achieved structural independence via AST diff facts, pre-change tree rebuild, and `compare.sh` differential probing without sharing author transcripts.
+3. **Stage Gating with Documentation-Only Exceptions (ADR-007, ADR-011)**: Strict gates are necessary to prevent broken code from advancing, but rigid heuristics fail on non-standard tasks. Campaign 1 run [44741723040](https://github.com/Ishaank1805/tinydb/actions/runs/44741723040) stopped at design because the check demanded Python functions for a pure documentation fix. PR #23 introduced documentation-only plan exceptions, allowing red-team runs to pass design and open PR #33.
+
+---
+
+## 3 Decision Experiments
+
+### D1: Modular Multi-Agent vs. Single-Agent Architecture
+
+The D1 experiment evaluated whether decomposing the pipeline into specialized roles (Planner, Implementer, Test Author, Reviewer) outperforms a monolithic Single-Agent architecture sharing a continuous conversation across stages 1–4.
+
+| Metric | Baseline Multi-Agent (C1) | Baseline Multi-Agent (C2) | Single-Agent (C1) | Single-Agent (C2) |
+|---|---|---|---|---|
+| Full Runs Executed | 5 | 5 | 5 | 5 |
+| PR Opened & CI Green (Release) | 4/5 (80%) | **5/5 (100%)** | 5/5 (100%) | 4/5 (80%) |
+| Stopped Before Release | 1/5 (20%) | **0/5 (0%)** | 0/5 (0%) | 1/5 (20%) |
+| Final Review Approval | 4/5 (80%) | 4/5 (80%) | 4/5 (80%) | 4/5 (80%) |
+| Hidden Tests Passed (Ground Truth) | 16/20 (80%) | **20/20 (100%)** | 20/20 (100%) | 16/20 (80%) |
+| Runs Passing All Hidden Tests | 4/5 (80%) | **5/5 (100%)** | 5/5 (100%) | 4/5 (80%) |
+| Mean Failed Checks per Run | 2.20 | 2.40 | 2.60 | 1.80 |
+| Mean Tokens per Run | **456,700** | **629,641** | 1,001,233 | 675,261 |
+
+![Stage Pass Rate](../results/figures/stage_pass_rate.png)
+
+**Synthesis on D1**: Multi-agent baseline proved significantly more token-efficient than single-agent across both campaigns (averaging ~543k tokens vs. ~838k tokens). In Campaign 1, baseline stopped at Issue 3 requirements; in Campaign 2, baseline achieved a flawless **100% hidden test pass rate (20/20)** across all five issues. Conversely, single-agent succeeded in C1 but suffered an unrecoverable requirement failure on Issue 2 in C2 (run [44919386414](https://github.com/Ishaank1805/tinydb/actions/runs/44919386414)). Modularity isolates context and prevents cognitive saturation.
+
+### D8: Independent Reviewer Evolution (Reviewer v1 vs. Reviewer v2)
+
+The D8 experiment evaluated reviewer effectiveness across two dimensions: (1) author rationale transparency in Campaign 1, and (2) differential probing with AST facts (Reviewer v2) across development (S1–S5) and held-out (S6–S10) seeded PRs in Campaign 2.
+
+| Metric | Dev Set (S1–S5) Baseline v2 | Dev Set (S1–S5) Reviewer-v1 | Held-Out Set (S6–S10) Baseline v2 | Held-Out Set (S6–S10) Reviewer-v1 |
+|---|---|---|---|---|
+| Total Reviews (2 Repeats) | 10 | 10 | 10 | 10 |
+| Defects Caught (Recall) | 1/6 (17%) | 2/6 (33%) | 2/6 (33%) | 3/6 (50%) |
+| Defects Missed (False Approvals) | 5/6 (83%) | 4/6 (67%) | 4/6 (67%) | 3/6 (50%) |
+| Clean PRs Approved (True Negatives) | **4/4 (100%)** | **4/4 (100%)** | **4/4 (100%)** | **4/4 (100%)** |
+| False Alarms (Clean PRs Rejected) | **0/4 (0%)** | **0/4 (0%)** | **0/4 (0%)** | **0/4 (0%)** |
+| Precision of "Request Changes" | **100%** | **100%** | **100%** | **100%** |
+| Repeat Verdict Consistency | 4/5 (80%) | 5/5 (100%) | 3/5 (60%) | 4/5 (80%) |
+
+![Seeded Reviews](../results/figures/seeded_reviews.png)
+
+**Synthesis on D8**: Across all 40 Campaign 2 seeded reviews, precision was 100%: neither reviewer ever rejected a clean PR. On held-out PRs, Reviewer v2 caught S7 (silent list wrapping) and S8 (stale cache on table rename). Reviewer v1 achieved slightly higher recall (50% vs 33% on held-out), demonstrating that prompt simplicity with Flash-Lite models can outperform complex differential tooling when model reasoning is constrained.
+
+---
+
+## 4 Results
+
+Across both campaigns, AutoSE executed **80 total runs** (27 full pipeline runs, 53 review runs), consuming **21,668,554 tokens** at an estimated cost of **$0.00** on Google Gemini free tier.
+
+![Hidden Tests](../results/figures/hidden_tests.png)
+
+### Hidden Test Ground Truth
+
+On the benchmark evaluation suite, multi-agent baseline achieved 16/20 (80%) in Campaign 1 and **20/20 (100%)** in Campaign 2, solving every issue cleanly. Single-agent achieved 20/20 in C1 and 16/20 in C2.
+
+### Review Error Analysis
+
+Detailed analysis of the 30 defective seeded PR reviews (`results/review_analysis.md`) identified why defects were missed:
+- **Probes never exposed defect**: 10 runs (33.3%). Reviewers wrote general smoke tests rather than adversarial boundary cases.
+- **Caught without exposing probe**: 7 runs (23.3%). Reviewers spotted discrepancies via static inspection.
+- **No probe of its own**: 6 runs (20.0%). Reviewers failed to write a custom probe script.
+- **Exposed but approved anyway**: 5 runs (16.7%). The probe stdout exhibited the bug, but the LLM failed to interpret the anomaly.
+- **Caught with exposing probe**: 2 runs (6.7%). Probes actively triggered differential failures that guided rejection.
+
+### Red-Team Security Evaluation
+
+The adversarial red-team issue embedded hidden HTML comment instructions ordering credential exfiltration and unauthorized deletions. In all 6 red-team runs, the gate stripped the 346-character malicious comment. In Campaign 2, run [44915278834](https://github.com/Ishaank1805/tinydb/actions/runs/44915278834) passed requirements, design (under PR #23 doc-only rules), implementation, testing, release, and independent review, producing green [PR #33](https://github.com/Ishaank1805/tinydb/pull/33).
+
+---
+
+## 5 Hindsight
+
+Reflecting on the architecture reveals three key lessons:
+1. **Tooling Cannot Compensate for Lightweight Model Capacity**: Reviewer v2 provided full AST diff-facts, reconstructed pre-change code, and differential execution. However, `gemini-3.1-flash-lite` frequently lacked the reasoning capacity to synthesize probe outputs into accurate defect diagnoses.
+2. **Deterministic Stage Gates Outperform Advisory Checks**: When gates relied on advisory LLM signals, subtle defects slipped through. Moving to hard AST and JUnit gates eliminated invalid code progression.
+3. **Operational Hardening is Mandatory for Autonomous Agents**: Free-tier provider constraints (rate limits and quota pauses) require formal pausing protocols rather than mid-run heuristic adjustments.
+
+---
+
+## 6 Limitations
+
+1. **Small Sample Sizes & LLM Stochasticity**: With 5 issues and 10 seeded PRs, individual run-to-run variances in Flash-Lite heavily impact percentage metrics (e.g. C1 baseline Issue 3 stop vs C2 100% pass).
+2. **Flash-Lite Reasoning Saturation**: Lightweight models display high sensitivity to prompt structure at requirements and design, occasionally exhausting 3 submissions on minor syntax issues.
+3. **Single Target Codebase**: Evaluated solely on `tinydb`; findings on test generation and review probing may not generalize to larger monorepos or compiled languages.
+4. **Free Tier Latency Constraints**: Mandatory 6.5s pacing expanded run durations to 40–70 minutes, creating scheduling bottlenecks.
+5. **Seeded Defect Authorship Bias**: Seeded PRs were authored by the same engineering team, potentially introducing implicit domain biases.
+6. **Operational Protocol Deviation**: PR #35 temporarily introduced `gemini-3.5-flash-lite` for 6 D1 runs before being reverted in PR #36.
+
+---
+
+# Appendix A — Sequence View of a Real Run
+
+Full execution trace from baseline run [44724438807](https://github.com/Ishaank1805/tinydb/actions/runs/44724438807) (Issue 1, resulting in approved PR #13):
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor M as Maintainer
+  participant G as Gate job
+  participant H as Harness (orchestrator, checks)
+  participant P as Planner agent
+  participant I as Implementer agent
+  participant T as Test-author agent
+  participant C as CI workflow
+  participant R as Reviewer agent (own job)
+  actor U as Human
+  M->>G: full on #2 (baseline)
+  G->>H: sanitised issue snapshot
+  H->>P: requirements (round 0)
+  P-->>H: submit for requirements check
+  Note over H: requirements check passed
+  H->>P: design (round 0)
+  P-->>H: submit for design check
+  Note over H: design check failed (attempt 1)
+  P-->>H: submit for design check
+  Note over H: design check passed (attempt 2)
+  H->>I: implementation (round 0) attempt 1/3
+  I-->>H: submit for implementation check
+  Note over H: implementation check passed
+  H->>T: testing (round 0)
+  T-->>H: submit for testing check
+  Note over H: testing check passed
+  H->>H: release (round 0)
+  Note over H: commit, push branch, open PR #13
+  H->>C: workflow_dispatch on PR branch
+  C-->>H: success (CI green)
+  H->>R: review round 1 (issue + diff + repo)
+  R-->>H: approve target none
+  H->>U: Independent reviewer approved - PR #13
+```
+
+---
+
+# Appendix B — Token Usage and Cost Analysis
+
+Across 80 protocol runs, the pipeline consumed 21.67 million tokens with zero API expenditure:
+
+![Tokens Per Run](../results/figures/tokens_per_run.png)
+
+| Run Type | Runs Count | Total Tokens | Mean Tokens / Run | Cost (USD) |
+|---|---|---|---|---|
+| Full Baseline (C1) | 5 | 2,283,501 | 456,700 | $0.00 |
+| Full Baseline (C2) | 5 | 3,148,207 | 629,641 | $0.00 |
+| Full Single-Agent (C1) | 5 | 5,006,165 | 1,001,233 | $0.00 |
+| Full Single-Agent (C2) | 5 | 3,376,307 | 675,261 | $0.00 |
+| Red-Team Runs (C1 + C2) | 7 | 2,872,114 | 410,302 | $0.00 |
+| Review-Only Runs | 53 | 4,982,260 | 94,005 | $0.00 |
+| **All Protocol Runs** | **80** | **21,668,554** | **270,857** | **$0.00** |
+
+---
+
+# Appendix C — Fixes and Interventions Log Summary
+
+Full record of maintenance interventions and design pull requests applied to the fork:
+
+| Date | Trigger / Run | Change (PR/Commit) | Description and Rationale |
+|---|---|---|---|
+| 2026-11-20 | Configuration setup | [Commit 8a315ce](https://github.com/Ishaank1805/autose-a3/commit/8a315ce) | Populated repository slug `Ishaank1805/tinydb` across harness configuration |
+| 2026-11-20 | Doctor run [44722135182](https://github.com/Ishaank1805/tinydb/actions/runs/44722135182) | [PR #1](https://github.com/Ishaank1805/tinydb/pull/1) | Added `-o addopts=` to pytest invocation in `doctor.py` to isolate from root config |
+| 2026-11-20 | Build run reporting | [PR #22](https://github.com/Ishaank1805/tinydb/pull/22) | Propagated `stopped_stage` and `stopped_reason` from build workflow to report job |
+| 2026-11-20 | Red-team run [44741723040](https://github.com/Ishaank1805/tinydb/actions/runs/44741723040) | [PR #23](https://github.com/Ishaank1805/tinydb/pull/23) | Allowed documentation-only plans to bypass Python AST function name requirements |
+| 2026-11-20 | Confirmation run [44751912678](https://github.com/Ishaank1805/tinydb/actions/runs/44751912678) | [PR #24](https://github.com/Ishaank1805/tinydb/pull/24) | Increased build soft budget to 80m and hard Actions limit to 95m |
+| 2026-11-21 | Reviewer smoke run [44829639910](https://github.com/Ishaank1805/tinydb/actions/runs/44829639910) | [PR #31](https://github.com/Ishaank1805/tinydb/pull/31) | Handled leading `python` arguments and `scratch/` prefixes in `compare.sh` |
+| 2026-11-21 | Reviewer run [44832255390](https://github.com/Ishaank1805/tinydb/actions/runs/44832255390) | [PR #32](https://github.com/Ishaank1805/tinydb/pull/32) | Normalized relative `scratch/` paths to `$SCRATCH` in command execution handler |
+| 2026-11-21 | Full run [44919969207](https://github.com/Ishaank1805/tinydb/actions/runs/44919969207) | [PR #35](https://github.com/Ishaank1805/tinydb/pull/35) | Temporary switch of reviewer model to `gemini-3.5-flash-lite` during quota pause |
+| 2026-11-24 | Post-campaign alignment | [PR #36](https://github.com/Ishaank1805/tinydb/pull/36) | Reverted PR #35 to restore canonical `gemini-3.1-flash-lite` reviewer model |
+| 2026-11-24 | Post-campaign analysis | [PR #37](https://github.com/Ishaank1805/tinydb/pull/37) | Hardened `build_base_tree` with `GIT_CEILING_DIRECTORIES` and skipped-file checks |
+
+---
+
+# Appendix D — AI-Use Statement
+
+> **Use of AI.** AI was only used to generate the code.
