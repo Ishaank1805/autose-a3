@@ -56,6 +56,15 @@ The reviewer's own account of its checks (`probes` field of its review), shorten
 | [44914067348](https://github.com/Ishaank1805/tinydb/actions/runs/44914067348) | S9 | baseline · c2 | missed: a probe exposed it, approved anyway | Created a verification script comparing old vs new Document behavior. Confirmed that repr now includes doc_id and equality now distinguishes documents based on doc_id. |
 | [44914324560](https://github.com/Ishaank1805/tinydb/actions/runs/44914324560) | S9 | reviewer-v1 · c2 | missed: a probe exposed it, approved anyway | I verified the `__repr__` output format, confirmed the equality behavior with both dictionaries and other documents, and confirmed that the existing test suite passes. The `__eq__` and `__ne__` implementations are robust. I also verified the `__hash__ = None` setting (it was present in the class eve |
 
+## Did the before/after comparison work in the real runs?
+
+15 `compare.sh` calls with a recorded output. 15: output not recognised.
+Of the 0 calls whose output shows both versions, 0 showed a difference between the PR head and the code before the change. Transcripts keep at most 4,000 characters of each tool output, so a long first half can hide the second.
+
+- `$ cat > scratch/compare.sh <<EOF #!/bin/bash set -e # Restore base for comparison cp scratch/base/database.py tinydb/database.py echo "Running on base..." pytho`
+- `$ bash scratch/compare.sh [exit code 0, 0.0s] --- Running on PR head --- python3: can't open file '/home/runner/work/tinydb/tinydb/repo/scratch/test_probe.py': `
+- `$ cp scratch/test_probe.py scratch/base/test_probe.py bash scratch/compare.sh [exit code 0, 0.0s] --- Running on PR head --- python3: can't open file '/home/run`
+
 ## Every review of a defective seeded PR
 
 | Run | Seeded PR | Group | Verdict | Outcome | Probes run | Exposing | Skipped (unsafe) | compare.sh runs (differed) |

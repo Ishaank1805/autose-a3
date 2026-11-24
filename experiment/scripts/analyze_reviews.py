@@ -64,10 +64,16 @@ def records(folder: Path) -> list[dict]:
     return out
 
 
-def compare_outputs(recs: list[dict]) -> list[bool]:
-    """For every compare.sh run in the transcript: did the two halves (PR head, before the change) differ?"""
+def compare_outputs(recs: list[dict]) -> list[dict]:
+    """Every compare.sh call in the transcript and what its recorded output shows.
+
+    status: both halves (differed True/False) | only the PR head half recorded (output cut off) |
+    probe file not found | output not recognised.
+    """
     pending: list[dict] = []
-    results: list[bool] = []
+    results: list[dict] = []
+    head_rx = re.compile(r'^=+\s*PR head[^\n]*$', re.I | re.M)
+    before_rx = re.compile(r'^=+\s*before the change[^\n]*$', re.I | re.M)
     for rec in recs:
         if rec.get('type') == 'assistant':
             pending = list(rec.get('tool_calls') or [])
@@ -79,13 +85,21 @@ def compare_outputs(recs: list[dict]) -> list[bool]:
                     args = json.loads(args)
                 except json.JSONDecodeError:
                     args = {}
+            if call.get('name') != 'run_command' or 'compare.sh' not in str(args.get('command', '')):
+                continue
             output = str(rec.get('output', ''))
-            if call.get('name') == 'run_command' and 'compare.sh' in str(args.get('command', '')) \
-                    and '=== before the change' in output:
-                head, before = output.split('=== before the change', 1)
-                head = head.split('=== PR head ===', 1)[-1]
-                before = before.split('===', 1)[-1]
-                results.append(head.strip() != before.strip())
+            m_head, m_before = head_rx.search(output), before_rx.search(output)
+            if m_head and m_before:
+                head = output[m_head.end():m_before.start()].strip()
+                before = output[m_before.end():].strip()
+                results.append({'status': 'both halves', 'differed': head != before, 'snippet': ''})
+            elif m_head:
+                results.append({'status': 'only the PR head half recorded (output cut off)', 'differed': None,
+                                'snippet': output[-160:]})
+            elif 'probe file not found' in output:
+                results.append({'status': 'probe file not found', 'differed': None, 'snippet': output[:160]})
+            else:
+                results.append({'status': 'output not recognised', 'differed': None, 'snippet': output[:200]})
     return results
 
 
@@ -181,14 +195,19 @@ def analyse(rows: list[dict], cache: Path, pinned: Path, python: str, work: Path
                 'seeded_set': r.get('seeded_set') or 'dev', 'group': f"{r['variant']} · {r.get('campaign') or 'c1'}",
                 'verdict': verdict, 'probes_written': 0, 'probes_run': 0, 'probes_exposing': 0,
                 'probes_skipped_unsafe': 0, 'used_compare': False, 'exposing_probe': '', 'class': 'no transcript',
-                'compare_runs': 0, 'compare_showed_difference': 0, 'compare_calls': 0, 'reviewer_said': ''}
+                'compare_runs': 0, 'compare_showed_difference': 0, 'compare_calls': 0, 'reviewer_said': '',
+                'compare_statuses': '', 'compare_snippet': '', '_compared': []}
         if not (folder / 'transcripts').is_dir():
             out.append(item)
             continue
         recs = records(folder)
         files, commands = probes(recs)
         compared = compare_outputs(recs)
-        item.update(compare_runs=len(compared), compare_showed_difference=sum(compared))
+        item.update(compare_runs=sum(1 for c in compared if c['status'] == 'both halves'),
+                    compare_showed_difference=sum(1 for c in compared if c['differed']),
+                    compare_statuses='; '.join(sorted({c['status'] for c in compared})),
+                    compare_snippet=next((c['snippet'] for c in compared if c['snippet']), ''))
+        item['_compared'] = compared
         joined = '\n'.join(commands)
         whole = bool(WHOLE_FOLDER.search(joined))     # e.g. `pytest -q $SCRATCH` runs every test file there
         ran = [n for n in files if Path(n).name in joined
@@ -222,9 +241,9 @@ def analyse(rows: list[dict], cache: Path, pinned: Path, python: str, work: Path
 def write(items: list[dict], out: Path) -> None:
     fields = ['run_id', 'run_url', 'seeded_id', 'seeded_set', 'group', 'verdict', 'class', 'probes_written',
               'probes_run', 'probes_exposing', 'probes_skipped_unsafe', 'used_compare', 'exposing_probe',
-              'compare_runs', 'compare_showed_difference', 'compare_calls', 'reviewer_said']
+              'compare_runs', 'compare_showed_difference', 'compare_calls', 'compare_statuses', 'reviewer_said']
     with open(out / 'review_analysis.csv', 'w', newline='', encoding='utf-8') as fh:
-        writer = csv.DictWriter(fh, fieldnames=fields)
+        writer = csv.DictWriter(fh, fieldnames=fields, extrasaction='ignore')
         writer.writeheader()
         writer.writerows(items)
     md = ['# Why the reviewer missed defects: error analysis of the seeded-PR reviews', '',
@@ -263,18 +282,19 @@ def write(items: list[dict], out: Path) -> None:
         md += [f"| [{i['run_id']}]({i['run_url']}) | {i['seeded_id']} | {i['group']} | {i['class']} | "
                f"{i['reviewer_said'][:300].replace('|', '/')} |" for i in approvals]
         md.append('')
-    compare_items = [i for i in items if i['compare_runs']]
-    if compare_items:
-        runs = sum(i['compare_runs'] for i in compare_items)
-        diff = sum(i['compare_showed_difference'] for i in compare_items)
+    calls = [c for i in items for c in i['_compared']]
+    if calls:
+        from collections import Counter as _C
+        counts = _C(c['status'] for c in calls)
+        both = [c for c in calls if c['status'] == 'both halves']
         md += ['## Did the before/after comparison work in the real runs?', '',
-               f'{runs} `compare.sh` runs in {len(compare_items)} reviews; {diff} showed a difference between the PR '
-               'head and the code before the change. On a PR that adds a function (S4, S7, S8), a probe that calls '
-               'it must fail on the code before the change, so identical halves there would mean the pre-change '
-               'code was not rebuilt.', '']
-        feature = [i for i in compare_items if i['seeded_id'] in ('S4', 'S7', 'S8') and not i['compare_showed_difference']]
-        md += [f'Reviews of S4/S7/S8 where no comparison showed any difference: {len(feature)} of '
-               f"{len([i for i in compare_items if i['seeded_id'] in ('S4', 'S7', 'S8')])}.", '']
+               f'{len(calls)} `compare.sh` calls with a recorded output. ' + '; '.join(f'{n}: {k}' for k, n in counts.most_common()) + '.',
+               f"Of the {len(both)} calls whose output shows both versions, {sum(1 for c in both if c['differed'])} showed a "
+               'difference between the PR head and the code before the change. Transcripts keep at most 4,000 characters of '
+               'each tool output, so a long first half can hide the second.', '']
+        for c in [c for c in calls if c['snippet']][:3]:
+            md.append('- `' + ' '.join(c['snippet'].split())[:160].replace('`', "'") + '`')
+        md.append('')
     md += ['## Every review of a defective seeded PR', '',
            '| Run | Seeded PR | Group | Verdict | Outcome | Probes run | Exposing | Skipped (unsafe) | compare.sh runs (differed) |',
            '|---|---|---|---|---|---|---|---|---|']

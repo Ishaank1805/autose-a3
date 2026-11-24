@@ -134,7 +134,7 @@ The D8 experiment evaluated reviewer effectiveness across two dimensions: (1) au
 
 ![Seeded Reviews](../results/figures/seeded_reviews.png)
 
-**Synthesis on D8**: Across all 40 Campaign 2 seeded reviews, there were no false alarms in the 16 reviews of clean seeded PRs (100% precision, defined as the share of request-changes verdicts that were correct). Reviewer v2 called `compare.sh` 15 times across 12 reviews of defective PRs (8 reviews called it at least once). On held-out PRs, Reviewer v2 caught S7 and S8. In S2, both reviewers observed the dropped subsequent updates in probe output: Reviewer v2 in [run 44909885659](https://github.com/Ishaank1805/tinydb/actions/runs/44909885659) noted that "the `break` statement causes subsequent updates for the same document to be ignored, which is a departure from the previous behavior where all updates were applied", while Reviewer v1 in [run 44835481627](https://github.com/Ishaank1805/tinydb/actions/runs/44835481627) called it "a desirable optimization", and both approved anyway.
+**Synthesis on D8**: Across all 40 Campaign 2 seeded reviews, there were no false alarms in the 16 reviews of clean seeded PRs (100% precision, defined as the share of request-changes verdicts that were correct). Reviewer v2 called `compare.sh` 15 times across 12 reviews of defective PRs (8 reviews called it at least once). However, analysis of recorded transcripts in `results/review_analysis.md` reveals that all 15 calls were classified as "output not recognised" (0 calls recorded both halves in canonical harness format, 0 showed a confirmed difference between PR head and the pre-change baseline). Reviewers frequently wrote custom `compare.sh` wrappers via shell heredocs, ran scripts where probe paths were missing (e.g. `python3: can't open file .../scratch/test_probe.py`), or printed custom test headers rather than canonical harness delimiters (`=== PR head ===` / `=== before the change ===`). Because 0 calls recorded both halves in canonical format, whether reviewer v2's before/after comparison worked can be confirmed only for calls with both halves recorded. On held-out PRs, Reviewer v2 caught S7 and S8. In S2, both reviewers observed the dropped subsequent updates in probe output: Reviewer v2 in [run 44909885659](https://github.com/Ishaank1805/tinydb/actions/runs/44909885659) noted that "the `break` statement causes subsequent updates for the same document to be ignored, which is a departure from the previous behavior where all updates were applied", while Reviewer v1 in [run 44835481627](https://github.com/Ishaank1805/tinydb/actions/runs/44835481627) called it "a desirable optimization", and both approved anyway.
 
 ---
 
@@ -180,6 +180,7 @@ Reflecting on the architecture reveals three key lessons:
 4. **Free Tier Latency Constraints**: Mandatory 6.5s pacing expanded run durations to 40–70 minutes, creating scheduling bottlenecks.
 5. **Seeded Defect Authorship Bias**: Seeded PRs were authored by the same engineering team, potentially introducing implicit domain biases.
 6. **Operational Protocol Deviation**: PR #35 temporarily introduced `gemini-3.5-flash-lite` for 6 D1 runs before being reverted in PR #36.
+7. **Reviewer Comparison Output Verification**: While Reviewer v2 called `compare.sh` 15 times across 12 defective PR reviews, analysis in `results/review_analysis.md` indicates that all 15 calls produced unrecognised output (0 recorded both versions in canonical harness format, 0 confirmed differences). Reviewers wrote custom `compare.sh` scripts, ran with missing probe files, or printed custom output delimiters; whether v2's differential comparison worked as designed can only be confirmed for calls with both halves recorded.
 
 ---
 
@@ -250,7 +251,7 @@ Full record of maintenance interventions and design pull requests applied to the
 
 | Date | Trigger / Run | Change (PR/Commit) | Description and Rationale |
 |---|---|---|---|
-| 2026-11-20 | Configuration setup | [Commit 8a315ce](https://github.com/Ishaank1805/autose-a3/commit/8a315ce) | Populated repository slug `Ishaank1805/tinydb` across harness configuration |
+| 2026-11-20 | Configuration setup | [Commit 5979582](https://github.com/Ishaank1805/autose-a3/commit/5979582) | Populated repository slug `Ishaank1805/tinydb` across harness configuration |
 | 2026-11-20 | Doctor run [44722135182](https://github.com/Ishaank1805/tinydb/actions/runs/44722135182) | [PR #1](https://github.com/Ishaank1805/tinydb/pull/1) | Added `-o addopts=` to pytest invocation in `doctor.py` to isolate from root config |
 | 2026-11-20 | Build run reporting | [PR #22](https://github.com/Ishaank1805/tinydb/pull/22) | Propagated `stopped_stage` and `stopped_reason` from build workflow to report job |
 | 2026-11-20 | Red-team run [44741723040](https://github.com/Ishaank1805/tinydb/actions/runs/44741723040) | [PR #23](https://github.com/Ishaank1805/tinydb/pull/23) | Allowed documentation-only plans to bypass Python AST function name requirements |
@@ -261,6 +262,7 @@ Full record of maintenance interventions and design pull requests applied to the
 | 2026-11-24 | Post-campaign alignment | [PR #36](https://github.com/Ishaank1805/tinydb/pull/36) | Reverted PR #35 to restore canonical `gemini-3.1-flash-lite` reviewer model |
 | 2026-11-24 | Post-campaign analysis | [PR #37](https://github.com/Ishaank1805/tinydb/pull/37) | Hardened `build_base_tree` with `GIT_CEILING_DIRECTORIES` and skipped-file checks |
 | 2026-11-24 | Seeded PR analysis | Script update (`analyze_reviews.py`) | Traced heredoc and directory probes, eliminated false "no probe" classifications |
+| 2026-11-24 | Comparison analysis | Script update (`analyze_reviews.py`) | Classified compare.sh transcript outputs and checked before/after code differences |
 
 ---
 
