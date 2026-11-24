@@ -8,7 +8,7 @@
 | **Pinned Upstream Commit** | `msiemens/tinydb@edff96aeb2616402e9489d46e90a592c05565621` |
 | **Course & Roll Number** | CS6.403 Software Engineering — Roll Number `2023114016` |
 | **Workflow Source** | `.github/workflows/autose.yml` in the fork (mirrored in [`workflow/`](workflow/)) |
-| **Primary Report** | [`report.pdf`](report.pdf) (7-page body PDF with Appendices A–C) |
+| **Primary Report** | [`report.pdf`](report.pdf) (7-page body PDF with Appendices A–E) |
 | **Walkthrough Video** | [`demo.mp4`](demo.mp4) (4:08 / 248.2s narrated video with live screen recording, 16 slides, 5.1 MB) · metadata in [`demo.mp4.json`](demo.mp4.json) |
 
 ---
@@ -51,7 +51,7 @@ AutoSE is gated by strict permission controls. Only users with at least `write` 
 ## Artifacts and Documentation Directory
 
 - **Report & Video**:
-  - [`report.pdf`](report.pdf): Full technical report (7 body pages, under 8-page cap, plus Appendices A–C).
+  - [`report.pdf`](report.pdf): Full technical report (7 body pages, under 8-page cap, plus Appendices A–E).
   - [`demo.mp4`](demo.mp4): 4-minute 8-second narrated demonstration video with live screen recording (audio synthesized via `edge-tts`).
   - [`demo/storyboard.json`](demo/storyboard.json): 16-slide storyboard linking real issue, run, and PR URLs.
 - **Architecture**:
@@ -102,9 +102,9 @@ Every number below is derived strictly from real, auditable runs in [`results/su
 ```
 .
 ├── README.md                          # Master documentation and submission overview
-├── report.pdf                         # 8-page body technical report with appendices
-├── report.pdf.json                    # Page count metadata (6 body pages, 8 total)
-├── demo.mp4                           # Narrated demonstration video (237.6s, 4.4MB)
+├── report.pdf                         # 7-page body technical report with Appendices A–E
+├── report.pdf.json                    # Page count metadata (7 body pages, 9 total)
+├── demo.mp4                           # Narrated demonstration video (248.2s, 5.1MB)
 ├── demo.mp4.json                      # Video metadata and edge-tts synthesis record
 ├── 2023114016_a3_AutoSE.txt           # Portal submission pointer file
 ├── architecture/
